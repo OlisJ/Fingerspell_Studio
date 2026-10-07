@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Fingerspell Studio</title>
 <meta name="description" content="Learn the ASL fingerspelling alphabet with a 3D hand you can turn, practice with live camera feedback, and watch any word fingerspelled.">
-<meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0E0F12" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E7E8EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D0E11" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Fingerspell Studio">
 <meta property="og:description" content="Learn and practice the ASL alphabet with a 3D hand and live camera feedback.">
 <meta property="og:type" content="website">
@@ -430,6 +430,109 @@ footer { margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid va
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ================= Glassmorphism layer ================= */
+:root {
+  --bg: #E7E8EC;
+  --surface: rgb(255 255 255 / 0.52);
+  --sunk: rgb(255 255 255 / 0.38);
+  --well: rgb(255 255 255 / 0.30);
+  --well-2: rgb(255 255 255 / 0.12);
+  --line: rgb(255 255 255 / 0.65);
+  --line-strong: rgb(255 255 255 / 0.85);
+  --muted: #474C5A;
+  --primary-soft: rgb(255 255 255 / 0.5);
+  --accent-soft: rgb(15 123 85 / 0.14);
+  --tip: rgb(255 248 225 / 0.6);
+  --tip-line: rgb(255 255 255 / 0.7);
+  --glass-shadow: 0 10px 40px -12px rgb(20 22 30 / 0.16), inset 0 1px 0 rgb(255 255 255 / 0.85);
+  --glass-strong: rgb(248 248 250 / 0.84);
+  --blob-1: #FFFFFF; --blob-2: #C9CCD4; --blob-3: #DADCE2; --blob-4: #B9BDC7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D0E11;
+    --surface: rgb(36 38 44 / 0.45);
+    --sunk: rgb(255 255 255 / 0.06);
+    --well: rgb(255 255 255 / 0.05);
+    --well-2: rgb(255 255 255 / 0.01);
+    --line: rgb(255 255 255 / 0.12);
+    --line-strong: rgb(255 255 255 / 0.22);
+    --muted: #A9AFC2;
+    --primary-soft: rgb(255 255 255 / 0.08);
+    --accent-soft: rgb(60 203 143 / 0.16);
+    --tip: rgb(80 66 20 / 0.35);
+    --tip-line: rgb(255 255 255 / 0.12);
+    --glass-shadow: 0 10px 40px -12px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
+    --glass-strong: rgb(22 23 27 / 0.82);
+    --blob-1: #2C303A; --blob-2: #3A3F4B; --blob-3: #23262E; --blob-4: #333844;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D0E11;
+  --surface: rgb(36 38 44 / 0.45);
+  --sunk: rgb(255 255 255 / 0.06);
+  --well: rgb(255 255 255 / 0.05);
+  --well-2: rgb(255 255 255 / 0.01);
+  --line: rgb(255 255 255 / 0.12);
+  --line-strong: rgb(255 255 255 / 0.22);
+  --muted: #A9AFC2;
+  --primary-soft: rgb(255 255 255 / 0.08);
+  --accent-soft: rgb(60 203 143 / 0.16);
+  --tip: rgb(80 66 20 / 0.35);
+  --tip-line: rgb(255 255 255 / 0.12);
+  --glass-shadow: 0 10px 40px -12px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --glass-strong: rgb(22 23 27 / 0.82);
+  --blob-1: #2C303A; --blob-2: #3A3F4B; --blob-3: #23262E; --blob-4: #333844;
+}
+/* vivid background the glass sits on */
+body { background: var(--bg); }
+body::before {
+  content: ""; position: fixed; inset: -10vmax; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38vmax 38vmax at 12% 18%, var(--blob-1) 0%, transparent 60%),
+    radial-gradient(42vmax 42vmax at 88% 12%, var(--blob-2) 0%, transparent 62%),
+    radial-gradient(40vmax 40vmax at 78% 88%, var(--blob-3) 0%, transparent 60%),
+    radial-gradient(36vmax 36vmax at 18% 92%, var(--blob-4) 0%, transparent 60%);
+  opacity: 0.9;
+}
+
+/* frosted surfaces */
+/* blur only the outer panels; anything inside them already sits on frosted glass */
+.card, .topbar {
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+}
+.card { background: var(--surface); border-color: var(--line); box-shadow: var(--glass-shadow); }
+.topbar { background: color-mix(in srgb, var(--surface) 70%, transparent); border-bottom-color: var(--line); box-shadow: inset 0 -1px 0 rgb(255 255 255 / .05); }
+.btn:not(.primary):not(.go), .linkbtn, .icon-btn { background: var(--sunk); border-color: var(--line); box-shadow: inset 0 1px 0 rgb(255 255 255 / .5); }
+.btn:not(.primary):not(.go):hover, .linkbtn:hover, .icon-btn:hover { background: var(--surface); }
+.seg { background: var(--sunk); border-color: var(--line); }
+.slider-thumb { background: var(--surface); box-shadow: 0 2px 8px rgb(20 22 30 / .12), inset 0 1px 0 rgb(255 255 255 / .8); }
+.tabs .slider-thumb { background: var(--sunk); box-shadow: inset 0 0 0 1px var(--line); }
+.rail .tiles button { background: var(--sunk); border-color: var(--line); }
+.rail .tiles button:hover { background: var(--surface); }
+.well { background: linear-gradient(160deg, var(--well) 0%, var(--well-2) 100%); }
+.well::before { opacity: .35; }
+.stage { background: color-mix(in srgb, var(--surface) 55%, transparent); }
+.mini { background: var(--sunk); }
+.field input, .wordrow input { background: var(--sunk); border-color: var(--line); }
+.ex { background: var(--sunk); border-color: var(--line); }
+.strip { border-top-color: var(--line); }
+.strip button.past { background: var(--sunk); }
+.word span { background: var(--sunk); border-color: var(--line); }
+.segbar i { background: var(--sunk); box-shadow: inset 0 0 0 1px var(--line); }
+.stats { background: var(--sunk); }
+.camcard .camfoot { border-top-color: var(--line); }
+.gate { background: var(--glass-strong); }
+.cam:has(.gate:not([hidden])) { background: transparent; }
+.cam { background: color-mix(in srgb, #0B0C0E 88%, transparent); }
+.howto div { background: var(--surface); }
+footer { border-top-color: var(--line); }
+.checks li .dot, .steps li::before { border-color: color-mix(in srgb, var(--ink) 22%, transparent); }
+.checks li.ok .dot { border-color: var(--accent); }
+.rail .tiles button[aria-current="true"], .word span.now { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.word span.ok { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 </style>
 </head>
 <body>
