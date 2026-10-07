@@ -1,0 +1,2037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fingerspell Studio</title>
+<meta name="description" content="Learn the ASL fingerspelling alphabet with a 3D hand you can turn, practice with live camera feedback, and watch any word fingerspelled.">
+<meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0F12" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Fingerspell Studio">
+<meta property="og:description" content="Learn and practice the ASL alphabet with a 3D hand and live camera feedback.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111316'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2'/%3E%3Cpath d='M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2'/%3E%3Cpath d='M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8'/%3E%3Cpath d='M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15'/%3E%3C/g%3E%3C/svg%3E">
+<script>try { const t = localStorage.getItem('fs.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600;650;700&family=Geist+Mono:wght@500&display=swap">
+<style>
+/* Layout: product-style workspace under a sticky top bar. Learn = letter index | 3D viewer | instructions.
+   Practice = camera viewport | coach panel. Neutral greys; the five finger colors are the only saturated hues. */
+:root {
+  --bg: #F5F5F3;
+  --surface: #FFFFFF;
+  --sunk: #EFEFEC;
+  --well: #F3F3F1;
+  --well-2: #E6E6E2;
+  --ink: #111316;
+  --muted: #5E636D;
+  --line: #E3E3DF;
+  --line-strong: #CFCFCA;
+  --primary: #111316;
+  --on-primary: #FFFFFF;
+  --primary-soft: #EDEDEA;
+  --accent: #0F7B55;
+  --on-accent: #FFFFFF;
+  --accent-soft: #E3F3EC;
+  --tip: #F7F4EC;
+  --tip-ink: #5B4A1E;
+  --tip-line: #E8DFC7;
+  --warn: #B4471F;
+  --clay: #D9CDC1;
+  --f-thumb: #E0553A;
+  --f-index: #D19A0F;
+  --f-middle: #2E9150;
+  --f-ring: #2F6FD0;
+  --f-pinky: #8A55D6;
+  --sh-1: 0 1px 2px rgb(17 19 22 / 0.05);
+  --sh-2: 0 1px 2px rgb(17 19 22 / 0.04), 0 8px 24px -12px rgb(17 19 22 / 0.12);
+  --font-display: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r-lg: 16px;
+  --r: 12px;
+  --r-sm: 10px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* spacing scale */
+  --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --gutter: 24px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E0F12; --surface: #16181C; --sunk: #1C1F24; --well: #1A1D22; --well-2: #121418;
+    --ink: #EDEEF0; --muted: #9AA0AA; --line: #262A30; --line-strong: #353A42;
+    --primary: #EDEEF0; --on-primary: #111316; --primary-soft: #23262C;
+    --accent: #3CCB8F; --on-accent: #062018; --accent-soft: #12291F;
+    --tip: #1E1C16; --tip-ink: #E4D3A3; --tip-line: #3A3424; --warn: #F08A5D;
+    --clay: #A99E94;
+    --f-thumb: #F5785C; --f-index: #F0C13E; --f-middle: #5ED184; --f-ring: #63A3F5; --f-pinky: #B48CF5;
+    --sh-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --sh-2: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E0F12; --surface: #16181C; --sunk: #1C1F24; --well: #1A1D22; --well-2: #121418;
+  --ink: #EDEEF0; --muted: #9AA0AA; --line: #262A30; --line-strong: #353A42;
+  --primary: #EDEEF0; --on-primary: #111316; --primary-soft: #23262C;
+  --accent: #3CCB8F; --on-accent: #062018; --accent-soft: #12291F;
+  --tip: #1E1C16; --tip-ink: #E4D3A3; --tip-line: #3A3424; --warn: #F08A5D;
+  --clay: #A99E94;
+  --f-thumb: #F5785C; --f-index: #F0C13E; --f-middle: #5ED184; --f-ring: #63A3F5; --f-pinky: #B48CF5;
+  --sh-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --sh-2: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 15px/1.55 var(--font-body);
+  padding: 0 16px 56px;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01";
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 1280px; margin: 0 auto; }
+.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.i.sm { width: 15px; height: 15px; }
+.i.lg { width: 20px; height: 20px; }
+.eyebrow { font: 500 0.72rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+/* ---------- Primitives ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 16px; border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  font: 500 0.92rem/1 var(--font-body); cursor: pointer; box-shadow: var(--sh-1);
+  transition: background-color 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.12s var(--ease);
+}
+.btn:hover { background: var(--sunk); }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; background: var(--surface); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.btn.primary:hover { opacity: 0.88; }
+.btn.go { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.btn.go:hover { opacity: 0.88; background: var(--primary); }
+.btn.ghost { border-color: transparent; box-shadow: none; background: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); background: var(--sunk); }
+.btn.lg { min-height: 50px; padding: 0 24px; font-size: 1rem; }
+.btn.busy .i { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.seg { position: relative; isolation: isolate; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--r-sm); background: var(--sunk); border: 1px solid var(--line); flex-wrap: wrap; }
+.seg button {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 12px;
+  border: 0; border-radius: 7px; background: transparent; cursor: pointer; color: var(--muted);
+  font: 500 0.88rem/1 var(--font-body); transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.seg button:hover { color: var(--ink); }
+.seg button { position: relative; z-index: 2; }
+.seg button[aria-selected="true"], .seg button[aria-pressed="true"] { color: var(--ink); }
+/* sliding thumb + cursor-following hover (added by script) */
+.slider-thumb, .slider-hover {
+  position: absolute; left: 0; top: 0; pointer-events: none; border-radius: 7px;
+  transition: transform .34s var(--ease), width .34s var(--ease), height .34s var(--ease), opacity .2s;
+}
+.slider-thumb { z-index: 1; background: var(--surface); box-shadow: 0 1px 2px rgb(17 19 22 / .1), 0 0 0 1px var(--line); }
+.slider-hover { z-index: 0; background: color-mix(in srgb, var(--ink) 7%, transparent); opacity: 0; }
+.slider-ready .slider-thumb, .slider-ready .slider-hover { will-change: transform; }
+.slider-init .slider-thumb, .slider-init .slider-hover { transition: none; }
+/* without script, keep the plain selected look */
+.seg:not(.slider-ready) button[aria-selected="true"], .seg:not(.slider-ready) button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 2px rgb(17 19 22 / .1), 0 0 0 1px var(--line); }
+
+.chip { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; white-space: nowrap; }
+.chip::before { content: ""; width: 0.6em; height: 0.6em; border-radius: 50%; background: var(--c); flex: none; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20; margin: 0 -16px var(--s6); padding: env(safe-area-inset-top, 0px) 16px 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+header.bar { display: flex; align-items: center; gap: 10px 24px; flex-wrap: wrap; min-height: 64px; padding-block: 8px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); }
+.logo .i { width: 19px; height: 19px; }
+.brand h1 { margin: 0; font: 650 1.05rem/1 var(--font-display); letter-spacing: -0.015em; }
+.brand h1 span { color: var(--muted); font-weight: 450; }
+.brand p { display: none; }
+.tabs { position: relative; isolation: isolate; display: flex; gap: 4px; margin-right: auto; }
+.tabs button {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 8px;
+  border: 0; background: transparent; cursor: pointer; color: var(--muted); font: 500 0.94rem/1 var(--font-body);
+  transition: color .18s, background-color .18s;
+}
+.tabs button:hover { color: var(--ink); }
+.tabs button { position: relative; z-index: 2; }
+.tabs button:hover { background: transparent; }
+.tabs button[aria-selected="true"] { color: var(--ink); }
+.tabs .slider-thumb { background: var(--sunk); box-shadow: none; border-radius: 8px; }
+.tabs .slider-hover { border-radius: 8px; background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.tabs:not(.slider-ready) button[aria-selected="true"] { background: var(--sunk); }
+
+.icon-btn {
+  width: 40px; height: 40px; display: grid; place-items: center; border-radius: var(--r-sm);
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+  transition: background-color .18s, border-color .18s;
+}
+.icon-btn:hover { background: var(--sunk); border-color: var(--line-strong); }
+.tt { width: 20px; height: 20px; overflow: visible; color: var(--ink); }
+.tt .core { r: 5px; transition: r .45s var(--ease); }
+.tt .bite { cx: 30px; cy: -6px; transition: cx .45s var(--ease), cy .45s var(--ease); }
+.tt .rays { transform-origin: 12px 12px; transition: transform .45s var(--ease), opacity .3s; }
+.is-dark .tt .core { r: 8.5px; }
+.is-dark .tt .bite { cx: 17px; cy: 7px; }
+.is-dark .tt .rays { transform: rotate(90deg) scale(0.4); opacity: 0; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* progress card (compact strip, same height as the page title) */
+.pcard { width: min(470px, 100%); padding: var(--s3) var(--s4); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s4); }
+.pcard .ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.pcard .mid { display: grid; gap: 8px; min-width: 0; }
+.pcard .line { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+.pcard .line b { color: var(--ink); font-weight: 600; }
+.pcard .pct { font: 650 0.95rem/1 var(--font-body); color: var(--ink); font-variant-numeric: tabular-nums; }
+.segbar { display: grid; grid-template-columns: repeat(26, minmax(0, 1fr)); gap: 2px; }
+.segbar i { height: 8px; border-radius: 2px; background: var(--sunk); box-shadow: inset 0 0 0 1px var(--line); transform-origin: bottom; transition: background-color .3s, box-shadow .3s; }
+.segbar i.on { background: var(--accent); box-shadow: none; animation: segin .5s var(--ease) both; animation-delay: calc(var(--k) * 28ms); }
+.segbar i.next { box-shadow: inset 0 0 0 1.5px var(--ink); }
+@keyframes segin { from { transform: scaleY(0.2); opacity: 0.3; } to { transform: scaleY(1); opacity: 1; } }
+.linkbtn { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 10px 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 0.85rem/1 var(--font-body); cursor: pointer; white-space: nowrap; transition: background-color .18s; }
+.linkbtn:hover { background: var(--sunk); }
+
+/* page heading */
+.pagehead { display: flex; justify-content: space-between; align-items: center; gap: var(--s5); flex-wrap: wrap; margin-bottom: var(--s5); }
+.pagehead > div:first-child { flex: 1 1 380px; min-width: 0; }
+.pagehead h2 { margin: 0; font: 650 clamp(1.6rem, 3vw, 2.1rem)/1.1 var(--font-display); letter-spacing: -0.03em; text-wrap: balance; }
+.pagehead p { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+
+/* ---------- Learn ---------- */
+.learn { display: grid; grid-template-columns: 232px minmax(0, 1fr) 368px; gap: var(--gutter); align-items: stretch; }
+.rail { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
+.rail .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.rail .tiles button {
+  aspect-ratio: 1; min-height: 44px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface);
+  font: 600 1.05rem/1 var(--font-display); color: var(--ink); cursor: pointer; position: relative;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.rail .tiles button:hover { border-color: var(--line-strong); background: var(--sunk); }
+.rail .tiles button[aria-current="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.rail .tiles .mv { position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+.rail .tiles button[aria-current="true"] .mv { background: var(--on-primary); }
+.rail .tiles button.done::after { content: ""; position: absolute; right: 5px; top: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.rail .key { display: flex; flex-direction: column; gap: var(--s2); font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: var(--s4); margin-top: auto; }
+.rail .key span { display: flex; align-items: center; gap: 8px; }
+.rail .key .sw-mv { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); margin-inline: 4px; }
+.rail .key .sw-ok { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-inline: 4px; }
+
+.stage { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.well { position: relative; flex: 1; min-height: 560px; background: radial-gradient(ellipse at 50% 35%, var(--well) 0%, var(--well-2) 100%); }
+.well::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .55;
+  background-image: radial-gradient(var(--line-strong) 1px, transparent 1px); background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 20%, transparent 75%);
+}
+.well canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.well canvas:active { cursor: grabbing; }
+.badge { position: absolute; left: var(--s5); top: var(--s5); display: flex; align-items: center; gap: 14px; pointer-events: none; }
+.badge .big { font: 650 4.4rem/0.9 var(--font-display); letter-spacing: -0.05em; color: var(--ink); }
+.badge .t { display: grid; gap: 4px; }
+.badge .t b { font: 500 0.95rem/1.25 var(--font-body); max-width: 20ch; color: var(--muted); }
+.toolbar { position: absolute; left: var(--s4); right: var(--s4); bottom: var(--s4); display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; pointer-events: none; }
+.toolbar > * { pointer-events: auto; }
+.toolbar .seg { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(8px); box-shadow: var(--sh-1); }
+.hintpill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 8px; font-size: 0.8rem; color: var(--muted); }
+
+.sheet { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); }
+.sheet h2 { margin: 6px 0 0; font: 650 1.4rem/1.2 var(--font-display); letter-spacing: -0.02em; text-wrap: balance; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; counter-increment: s; }
+.steps li::before {
+  content: counter(s); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 500 0.78rem/1 var(--font-mono); color: var(--muted); border: 1px solid var(--line-strong);
+}
+.steps li span { padding-top: 2px; }
+.tipbox { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding: 12px 14px; border-radius: var(--r); background: var(--tip); color: var(--tip-ink); border: 1px solid var(--tip-line); font-size: 0.9rem; }
+.tipbox .i { margin-top: 2px; }
+.tipbox b { font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.legend .chip { font-weight: 400; font-size: 0.85rem; color: var(--muted); }
+.sheet .nav { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); border-top: 1px solid var(--line); padding-top: var(--s5); margin-top: auto; }
+.sheet .nav .go { grid-column: 1 / -1; }
+
+/* ---------- Spell ---------- */
+.spell { display: grid; grid-template-columns: minmax(0, 1fr) 368px; gap: var(--gutter); align-items: stretch; }
+.spell .well { min-height: 500px; }
+.strip { display: flex; flex-wrap: wrap; gap: 6px; padding: var(--s4); border-top: 1px solid var(--line); min-height: 76px; align-items: center; }
+.strip button {
+  width: 36px; height: 42px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;
+  font: 600 1.1rem/1 var(--font-display); color: var(--ink); transition: background-color .2s, color .2s, border-color .2s, transform .2s var(--ease);
+}
+.strip button:hover { border-color: var(--line-strong); }
+.strip button.past { color: var(--muted); background: var(--sunk); border-color: transparent; }
+.strip button.now { background: var(--primary); border-color: var(--primary); color: var(--on-primary); transform: translateY(-2px); }
+.strip .gap { width: 14px; }
+.spellctl { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); }
+.field { display: grid; gap: var(--s2); }
+.field input {
+  min-height: 48px; padding: 0 14px; border-radius: var(--r-sm); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  font: 500 1.05rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.field input::placeholder { text-transform: none; letter-spacing: 0; font-family: var(--font-body); color: var(--muted); }
+.field input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; }
+.ex { min-height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--sunk); color: var(--ink); font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.06em; cursor: pointer; transition: border-color .18s, background-color .18s; }
+.ex:hover { border-color: var(--line-strong); background: var(--surface); }
+.transport { display: grid; grid-template-columns: 48px 1fr 48px 48px; gap: var(--s2); }
+.transport .btn { padding: 0; }
+.seg.speeds { display: grid; grid-template-columns: repeat(3, 1fr); }
+.seg.speeds button { justify-content: center; }
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; width: fit-content; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .track { width: 40px; height: 24px; border-radius: 12px; background: var(--line-strong); position: relative; transition: background-color .2s; }
+.switch .knob { position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0 / .25); transition: transform .25s var(--ease); }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track .knob { transform: translateX(16px); }
+.switch input:focus-visible + .track { outline: 2px solid var(--ink); outline-offset: 2px; }
+.spellctl .go { margin-top: auto; }
+
+/* ---------- Practice ---------- */
+.practice { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: var(--gutter); align-items: stretch; }
+.camcard { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.cam { position: relative; flex: 1; min-height: 480px; background: #0B0C0E; }
+.cam video, .cam canvas.overlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.gate {
+  position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 22px; padding: 28px; text-align: center;
+  background: radial-gradient(ellipse at 50% 35%, var(--well) 0%, var(--well-2) 100%);
+}
+.gate h2 { margin: 0; font: 650 clamp(1.4rem, 3vw, 1.9rem)/1.15 var(--font-display); letter-spacing: -0.025em; text-wrap: balance; }
+.howto { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: min(620px, 100%); }
+.howto div { padding: 14px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 8px; justify-items: start; text-align: left; font-size: 0.88rem; color: var(--muted); }
+.howto .n { font: 500 0.72rem/1 var(--font-mono); color: var(--ink); letter-spacing: 0.06em; }
+.privacy { display: inline-flex; align-items: center; gap: 7px; font-size: 0.84rem; color: var(--muted); }
+.gate .err { color: var(--warn); font-weight: 500; max-width: 46ch; margin: 0; }
+.status {
+  position: absolute; left: var(--s4); top: var(--s4); display: flex; gap: 8px; align-items: center;
+  padding: 7px 11px; border-radius: 8px; font: 500 0.78rem/1 var(--font-mono); color: #fff; background: rgb(11 12 14 / .6); backdrop-filter: blur(8px);
+}
+.status i { width: 7px; height: 7px; border-radius: 50%; background: #F5A55A; }
+.status.live i { background: #3CCB8F; box-shadow: 0 0 0 3px rgb(60 203 143 / .25); }
+.seen { position: absolute; right: var(--s4); top: var(--s4); padding: 9px 13px; border-radius: 10px; text-align: center; background: rgb(11 12 14 / .6); color: rgb(255 255 255 / .7); backdrop-filter: blur(8px); font: 500 0.65rem/1.2 var(--font-mono); letter-spacing: 0.08em; }
+.seen b { display: block; font: 650 2.1rem/1 var(--font-display); color: #fff; letter-spacing: -0.03em; margin-top: 3px; }
+.guide {
+  position: absolute; left: 50%; bottom: var(--s4); transform: translateX(-50%); max-width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 10px;
+  background: rgb(11 12 14 / .72); color: #fff; backdrop-filter: blur(8px); font: 500 0.88rem/1.3 var(--font-body);
+  box-shadow: inset 0 0 0 1px rgb(245 165 90 / .55);
+}
+.guide .i { color: #F5A55A; }
+.flash { position: absolute; inset: 0; box-shadow: inset 0 0 0 4px #3CCB8F; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.flash.on { opacity: 1; }
+.camfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: var(--s3) var(--s4); border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; min-height: 68px; }
+.camfoot span { display: inline-flex; gap: 7px; align-items: center; }
+
+.coach { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); }
+.seg.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg.modes button { justify-content: center; padding: 0 8px; white-space: nowrap; }
+.wordrow { display: flex; gap: 8px; align-items: center; }
+.wordrow input {
+  flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink); font: 500 1rem/1 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase;
+}
+.wordrow input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+.word { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+.word span { width: 34px; height: 40px; display: grid; place-items: center; border-radius: 8px; font: 600 1.1rem/1 var(--font-display); border: 1px solid var(--line); color: var(--muted); transition: background-color .2s, color .2s, border-color .2s; }
+.word span.now { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.word span.ok { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+
+.target { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.ring { position: relative; width: 148px; height: 148px; }
+.ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.ring .track { stroke: var(--sunk); }
+.ring .prog { stroke: var(--ink); transition: stroke-dashoffset .1s linear, stroke .2s; }
+.ring.done .prog { stroke: var(--accent); }
+.ring .glyph { position: absolute; inset: 0; display: grid; place-items: center; font: 650 4.6rem/1 var(--font-display); letter-spacing: -0.04em; color: var(--ink); }
+.ring.pop { animation: pop .45s var(--ease); }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+.ring .ok-badge { position: absolute; right: 6px; top: 6px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); border: 3px solid var(--surface); transform: scale(0); transition: transform .3s var(--ease); }
+.ring.done .ok-badge { transform: scale(1); }
+.ring .ok-badge .i { width: 16px; height: 16px; stroke-width: 3; }
+.mini { position: relative; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 40%, var(--well) 0%, var(--well-2) 100%); min-height: 148px; }
+.mini canvas { display: block; width: 100%; height: 148px; }
+.mini small { position: absolute; left: 10px; top: 9px; font: 500 0.66rem/1 var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.bubble { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 14px; border-radius: var(--r); background: var(--sunk); color: var(--ink); font: 500 1rem/1.4 var(--font-body); min-height: 70px; text-wrap: balance; border: 1px solid var(--line); }
+.bubble .i { color: var(--muted); margin-top: 2px; }
+.bubble.good { background: var(--accent-soft); border-color: transparent; }
+.bubble.good .i { color: var(--accent); }
+.motionbar { height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+.motionbar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--ink); transition: width .12s; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 0.92rem; }
+.checks li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: center; color: var(--muted); transition: color .2s; }
+.checks li .dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; transition: background-color .2s, border-color .2s; }
+.checks li .dot .i { width: 11px; height: 11px; stroke-width: 3.2; color: var(--on-accent); opacity: 0; transition: opacity .2s; }
+.checks li.ok { color: var(--ink); }
+.checks li.ok .dot { background: var(--accent); border-color: var(--accent); }
+.checks li.ok .dot .i { opacity: 1; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.stats div { padding: 12px 14px; display: grid; gap: 2px; }
+.stats div + div { border-left: 1px solid var(--line); }
+.stats .i { display: none; }
+.stats b { font: 600 1.3rem/1.1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stats span { font-size: 0.78rem; color: var(--muted); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 auto; }
+.fine { margin: 0; font-size: 0.82rem; color: var(--muted); }
+
+footer { margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid var(--line); display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; color: var(--muted); font-size: 0.83rem; }
+
+@media (max-width: 1100px) {
+  .learn { grid-template-columns: minmax(0, 1fr) 340px; }
+  .rail { grid-column: 1 / -1; }
+  .rail .tiles { grid-template-columns: repeat(13, 1fr); }
+  .rail .key { flex-direction: row; gap: var(--s4); margin-top: 0; }
+  .practice { grid-template-columns: minmax(0, 1fr) 360px; }
+}
+@media (max-width: 860px) {
+  .learn, .practice, .spell { grid-template-columns: minmax(0, 1fr); }
+  .spell .well { min-height: 420px; }
+  .well { min-height: 440px; }
+  .cam { flex: none; min-height: 0; aspect-ratio: 4 / 3; }
+  .tabs { margin-right: 0; }
+}
+@media (max-width: 560px) {
+  header.bar { gap: 8px 12px; }
+  .topbar { position: static; }
+  .brand h1 span { display: none; }
+  .tabs button { padding: 0 10px; }
+  .pcard { width: 100%; }
+  .rail .tiles { grid-template-columns: repeat(6, 1fr); }
+  .well { min-height: 380px; }
+  :root { --gutter: 16px; }
+  .rail, .sheet, .coach, .spellctl { padding: var(--s4); }
+  .spell .well { min-height: 360px; }
+  .hintpill { display: none; }
+  .badge .big { font-size: 3.4rem; }
+  .cam { aspect-ratio: 3 / 4; }
+  .gate { gap: 14px; padding: 20px; }
+  .howto { grid-template-columns: 1fr; }
+  .seg.modes .i { display: none; }
+  .target { grid-template-columns: 120px minmax(0, 1fr); }
+  .ring { width: 120px; height: 120px; }
+  .ring .glyph { font-size: 3.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><path d="M12 7v6"/><path d="M15 10H9"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M10 12h11"/><path d="M10 18h11"/><path d="M10 6h11"/><path d="M4 10h2"/><path d="M4 6h1v4"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="M2 6h1.4c1.3 0 2.5.6 3.3 1.7l.5.7"/><path d="M22 18h-6.1c-1.3 0-2.5-.6-3.3-1.7l-.5-.7"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/></symbol>
+  <symbol id="i-flip" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="m16 7 4 5-4 5z"/><path d="m8 7-4 5 4 5z"/></symbol>
+  <symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></symbol>
+</svg>
+
+<div class="topbar"><div class="wrap">
+  <header class="bar">
+    <div class="brand">
+      <div class="logo"><svg class="i"><use href="#i-hand"/></svg></div>
+      <h1>Fingerspell <span>Studio</span></h1>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Section">
+      <button role="tab" id="tab-learn" aria-selected="true" aria-controls="learn"><svg class="i"><use href="#i-book"/></svg>Learn</button>
+      <button role="tab" id="tab-practice" aria-selected="false" aria-controls="practice"><svg class="i"><use href="#i-camera"/></svg>Practice</button>
+      <button role="tab" id="tab-spell" aria-selected="false" aria-controls="spell"><svg class="i"><use href="#i-type"/></svg>Spell</button>
+    </nav>
+    <div class="seg" aria-label="Signing hand">
+      <button id="hand-right" aria-pressed="true">Right hand</button>
+      <button id="hand-left" aria-pressed="false">Left hand</button>
+    </div>
+    <button class="icon-btn" id="theme-toggle" aria-label="Switch between light and dark mode" title="Switch between light and dark mode">
+      <svg class="tt" viewBox="0 0 24 24" aria-hidden="true">
+        <mask id="tt-mask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="bite" r="7" fill="#000"/></mask>
+        <circle class="core" cx="12" cy="12" fill="currentColor" mask="url(#tt-mask)"/>
+        <g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 1.5v2.2"/><path d="M12 20.3v2.2"/><path d="M1.5 12h2.2"/><path d="M20.3 12h2.2"/>
+          <path d="m4.6 4.6 1.5 1.5"/><path d="m17.9 17.9 1.5 1.5"/><path d="m4.6 19.4 1.5-1.5"/><path d="m17.9 6.1 1.5-1.5"/>
+        </g>
+      </svg>
+    </button>
+  </header>
+</div></div>
+<div class="wrap">
+
+  <div class="pagehead">
+    <div><h2 id="page-title">The ASL alphabet, one handshape at a time</h2><p id="page-sub">Pick a letter, turn the 3D hand to see it from any side, and follow the steps.</p></div>
+    <section class="pcard card" aria-label="Alphabet progress">
+      <span class="ico"><svg class="i"><use href="#i-trophy"/></svg></span>
+      <div class="mid">
+        <div class="line"><span><b>Alphabet progress</b> · <span id="pcard-sub">0 of 26 signed</span></span><span class="pct"><span id="pcard-pct">0</span>%</span></div>
+        <div class="segbar" id="segbar" role="img" aria-label="0 of 26 letters signed"></div>
+      </div>
+      <button class="linkbtn" id="pcard-go"><span id="pcard-next">Next: A</span><svg class="i sm"><use href="#i-right"/></svg></button>
+    </section>
+  </div>
+
+  <!-- ================= LEARN ================= -->
+  <section id="learn-wrap">
+  <section id="learn" class="learn" role="tabpanel" aria-labelledby="tab-learn">
+    <nav class="rail card" aria-label="Letters">
+      <div class="eyebrow">Letters</div>
+      <div class="tiles" id="rail"></div>
+      <div class="key">
+        <span><i class="sw-mv"></i>Letter with a movement</span>
+        <span><i class="sw-ok"></i>Signed in Practice</span>
+      </div>
+    </nav>
+
+    <div class="stage card">
+      <div class="well">
+        <canvas id="hand3d" aria-label="3D model of the handshape. Drag to rotate."></canvas>
+        <div class="badge" aria-hidden="true">
+          <div class="big" id="stage-big">A</div>
+          <div class="t"><span class="eyebrow" id="stage-kind">Handshape</span><b id="stage-title">Fist, thumb up the side</b></div>
+        </div>
+        <div class="toolbar">
+          <div class="seg" aria-label="Camera angle">
+            <button data-view="mirror" aria-pressed="true">Mirror</button>
+            <button data-view="yours" aria-pressed="false">Your view</button>
+            <button data-view="side" aria-pressed="false">Side</button>
+          </div>
+          <span class="hintpill"><svg class="i sm"><use href="#i-move"/></svg>Drag to turn the hand</span>
+          <button class="btn primary" id="replay" hidden><svg class="i"><use href="#i-play"/></svg>Replay motion</button>
+        </div>
+      </div>
+    </div>
+
+    <article class="sheet card" id="sheet">
+      <div>
+        <div class="eyebrow" id="sheet-kind">Letter A · Handshape</div>
+        <h2 id="sheet-title">Fist, thumb up the side</h2>
+      </div>
+      <ol class="steps" id="sheet-steps"></ol>
+      <div class="tipbox"><svg class="i"><use href="#i-bulb"/></svg><div id="sheet-note"></div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">Finger colors</div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="nav">
+        <button class="btn" id="prev" aria-label="Previous letter"><svg class="i"><use href="#i-left"/></svg>Prev</button>
+        <button class="btn" id="next" aria-label="Next letter">Next<svg class="i"><use href="#i-right"/></svg></button>
+        <button class="btn go" id="go-practice"><svg class="i"><use href="#i-camera"/></svg><span id="go-practice-label">Practice A</span></button>
+      </div>
+    </article>
+  </section>
+  </section>
+
+  <!-- ================= PRACTICE ================= -->
+  <section id="practice" class="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div class="camcard card">
+      <div class="cam" id="cam">
+        <video id="video" playsinline muted></video>
+        <canvas class="overlay" id="overlay"></canvas>
+        <div class="flash" id="flash"></div>
+        <div class="guide" id="guide" hidden role="status"><svg class="i sm"><use href="#i-hand"/></svg><span id="guide-text"></span></div>
+        <div class="status" id="status" hidden><i></i><span id="status-text">Camera off</span></div>
+        <div class="seen" id="seen" hidden>LOOKS LIKE<b id="seen-letter">–</b></div>
+        <div class="gate" id="gate">
+          <h2>Practice with your camera</h2>
+          <div class="howto">
+            <div><span class="n">01</span>Allow camera access when your browser asks</div>
+            <div><span class="n">02</span>Hold one hand up, palm toward the screen</div>
+            <div><span class="n">03</span>Match the letter and hold it steady</div>
+          </div>
+          <button class="btn go lg" id="start-cam"><svg class="i"><use href="#i-camera"/></svg><span id="start-label">Start camera</span></button>
+          <p class="err" id="gate-err" role="alert" hidden></p>
+          <span class="privacy"><svg class="i sm"><use href="#i-lock"/></svg>Video stays on this computer. Nothing is uploaded.</span>
+        </div>
+      </div>
+      <div class="camfoot">
+        <span><svg class="i sm"><use href="#i-flip"/></svg>Mirrored, so it moves like a mirror</span>
+        <button class="btn" id="stop-cam" hidden><svg class="i"><use href="#i-stop"/></svg>Stop camera</button>
+      </div>
+    </div>
+
+    <aside class="coach card" aria-live="polite">
+      <div class="seg modes" aria-label="Practice mode">
+        <button data-mode="abc" aria-pressed="true"><svg class="i sm"><use href="#i-list"/></svg>A to Z</button>
+        <button data-mode="random" aria-pressed="false"><svg class="i sm"><use href="#i-shuffle"/></svg>Random</button>
+        <button data-mode="word" aria-pressed="false"><svg class="i sm"><use href="#i-type"/></svg>Spell a word</button>
+      </div>
+      <div id="word-wrap" hidden>
+        <div class="wordrow">
+          <label for="word-input" class="eyebrow">Word</label>
+          <input id="word-input" value="HELLO" maxlength="14" autocomplete="off" spellcheck="false">
+          <button class="btn" id="word-new"><svg class="i"><use href="#i-shuffle"/></svg>New</button>
+        </div>
+        <div class="word" id="word"></div>
+      </div>
+
+      <div class="target">
+        <div class="ring" id="ring">
+          <svg viewBox="0 0 156 156"><circle class="track" cx="78" cy="78" r="68" fill="none" stroke-width="10"></circle><circle class="prog" id="prog" cx="78" cy="78" r="68" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="427.3" stroke-dashoffset="427.3"></circle></svg>
+          <div class="glyph" id="target-letter">A</div>
+          <div class="ok-badge"><svg class="i"><use href="#i-check"/></svg></div>
+        </div>
+        <div class="mini"><canvas id="mini3d" aria-label="Reference handshape"></canvas><small>How it looks</small></div>
+      </div>
+
+      <div class="bubble" id="bubble"><svg class="i" id="bubble-icon"><use href="#i-message"/></svg><div id="nextfix">Start the camera to begin.</div></div>
+      <div id="motion-wrap" hidden>
+        <div class="eyebrow" id="motion-label" style="margin-bottom:8px">Draw the motion</div>
+        <div class="motionbar"><i id="motion-bar"></i></div>
+      </div>
+      <ul class="checks" id="checks"></ul>
+
+      <div class="stats">
+        <div><svg class="i lg"><use href="#i-flame"/></svg><b id="st-streak">0</b><span>Streak</span></div>
+        <div><svg class="i lg"><use href="#i-check"/></svg><b id="st-done">0</b><span>Signed</span></div>
+        <div><svg class="i lg"><use href="#i-trophy"/></svg><b id="st-best">0</b><span>Best</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="skip"><svg class="i"><use href="#i-skip"/></svg>Skip letter</button>
+        <button class="btn" id="save-mine" disabled><svg class="i"><use href="#i-save"/></svg><span id="save-mine-label">Save my version</span></button>
+        <button class="btn ghost" id="clear-mine" hidden><svg class="i"><use href="#i-x"/></svg>Forget saved</button>
+      </div>
+      <p class="fine" id="mine-msg">Coach missing a sign you know is right? Hold it and press Save my version. It will accept your way of making that letter.</p>
+    </aside>
+  </section>
+
+  <!-- ================= SPELL ================= -->
+  <section id="spell" class="spell" role="tabpanel" aria-labelledby="tab-spell" hidden>
+    <div class="stage card">
+      <div class="well">
+        <canvas id="spell3d" aria-label="3D hand fingerspelling your text. Drag to rotate."></canvas>
+        <div class="badge" aria-live="polite">
+          <div class="big" id="spell-big">H</div>
+          <div class="t"><span class="eyebrow" id="spell-pos">Letter 1 of 5</span><b id="spell-title">Flat hand, thumb folded</b></div>
+        </div>
+        <div class="toolbar">
+          <div class="seg" aria-label="Camera angle">
+            <button data-sview="mirror" aria-pressed="true">Mirror</button>
+            <button data-sview="yours" aria-pressed="false">Your view</button>
+            <button data-sview="side" aria-pressed="false">Side</button>
+          </div>
+          <span class="hintpill"><svg class="i sm"><use href="#i-move"/></svg>Space to play or pause</span>
+        </div>
+      </div>
+      <div class="strip" id="spell-strip" aria-label="Letters in your text"></div>
+    </div>
+
+    <aside class="spellctl card">
+      <div class="field">
+        <label for="spell-input" class="eyebrow">Text to fingerspell</label>
+        <input id="spell-input" value="HELLO" maxlength="40" autocomplete="off" spellcheck="false" placeholder="Type a word or a name">
+        <p class="fine" id="spell-empty" hidden>Type some letters A–Z to start.</p>
+      </div>
+      <div class="examples" aria-label="Examples">
+        <button class="ex" data-example="HELLO">HELLO</button>
+        <button class="ex" data-example="THANK YOU">THANK YOU</button>
+        <button class="ex" data-example="I LOVE YOU">I LOVE YOU</button>
+        <button class="ex" data-example="NICE TO MEET YOU">NICE TO MEET YOU</button>
+        <button class="ex" data-example="JAZZ">JAZZ</button>
+      </div>
+      <div class="transport">
+        <button class="btn" id="spell-prev" aria-label="Previous letter"><svg class="i"><use href="#i-left"/></svg></button>
+        <button class="btn primary" id="spell-play"><svg class="i"><use id="spell-play-icon" href="#i-play"/></svg><span id="spell-play-label">Play</span></button>
+        <button class="btn" id="spell-next" aria-label="Next letter"><svg class="i"><use href="#i-right"/></svg></button>
+        <button class="btn" id="spell-restart" aria-label="Play from the start"><svg class="i"><use href="#i-restart"/></svg></button>
+      </div>
+      <div class="field">
+        <span class="eyebrow">Speed</span>
+        <div class="seg speeds" aria-label="Speed">
+          <button data-speed="slow" aria-pressed="false">Slow</button>
+          <button data-speed="normal" aria-pressed="true">Normal</button>
+          <button data-speed="fast" aria-pressed="false">Fast</button>
+        </div>
+      </div>
+      <label class="switch"><input type="checkbox" id="spell-loop"><span class="track"><span class="knob"></span></span>Loop</label>
+      <div class="tipbox"><svg class="i"><use href="#i-bulb"/></svg><div><b>Reading tip.</b> Fluent signers spell at a steady rhythm and slide sideways for double letters, like the two Ls in HELLO. Try Fast and read it back without looking at the letters below.</div></div>
+      <button class="btn go" id="spell-practice"><svg class="i"><use href="#i-camera"/></svg>Practice this word with the camera</button>
+    </aside>
+  </section>
+
+  <footer>
+    <span>American Sign Language (ASL) one-handed alphabet. J and Z are drawn in the air.</span>
+    <span>Hand tracking runs in your browser with MediaPipe.</span>
+  </footer>
+</div>
+
+<script>
+// ---------- Fingerspell core: hand model, poses, features, classifier ----------
+// Shared by the 3D model (Learn) and the camera recognizer (Practice).
+// Landmark indices follow MediaPipe: 0 wrist, 1-4 thumb, 5-8 index, 9-12 middle, 13-16 ring, 17-20 pinky.
+const FS = (() => {
+  const D2R = Math.PI / 180;
+  const v = {
+    add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+    sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+    mul: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+    dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+    cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+    len: (a) => Math.hypot(a[0], a[1], a[2]),
+    norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+    lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t],
+    dist: (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]),
+  };
+  // 3x3 matrices as row-major arrays of 9
+  const m = {
+    mul: (A, B) => {
+      const r = new Array(9);
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++)
+        r[i * 3 + j] = A[i * 3] * B[j] + A[i * 3 + 1] * B[3 + j] + A[i * 3 + 2] * B[6 + j];
+      return r;
+    },
+    ap: (M, p) => [M[0] * p[0] + M[1] * p[1] + M[2] * p[2], M[3] * p[0] + M[4] * p[1] + M[5] * p[2], M[6] * p[0] + M[7] * p[1] + M[8] * p[2]],
+    rx: (d) => { const c = Math.cos(d * D2R), s = Math.sin(d * D2R); return [1, 0, 0, 0, c, -s, 0, s, c]; },
+    rz: (d) => { const c = Math.cos(d * D2R), s = Math.sin(d * D2R); return [c, -s, 0, s, c, 0, 0, 0, 1]; },
+    ry: (d) => { const c = Math.cos(d * D2R), s = Math.sin(d * D2R); return [c, 0, s, 0, 1, 0, -s, 0, c]; },
+    basis: (point, palm) => {
+      // columns: x = point × palm, y = point, z = palm (orthonormalized)
+      const y = v.norm(point);
+      let z = v.sub(palm, v.mul(y, v.dot(palm, y)));
+      z = v.norm(z);
+      const x = v.cross(y, z);
+      return [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]];
+    },
+  };
+
+  // ---- Hand geometry (palm length ~1) ----
+  const FINGERS = [
+    { key: 'I', name: 'index', base: [-0.29, 0.92, 0], splay: 5, L: [0.39, 0.23, 0.18], r: 0.082, idx: [5, 6, 7, 8] },
+    { key: 'M', name: 'middle', base: [-0.095, 0.97, 0], splay: 1, L: [0.42, 0.27, 0.19], r: 0.086, idx: [9, 10, 11, 12] },
+    { key: 'R', name: 'ring', base: [0.10, 0.93, 0], splay: -3, L: [0.40, 0.25, 0.18], r: 0.08, idx: [13, 14, 15, 16] },
+    { key: 'P', name: 'pinky', base: [0.27, 0.84, 0], splay: -8, L: [0.32, 0.19, 0.16], r: 0.068, idx: [17, 18, 19, 20] },
+  ];
+  const THUMB = { cmc: [-0.25, 0.14, 0.09], L: [0.44, 0.31, 0.25], r: 0.1, rest: [-0.55, 0.72, 0.42], pole: [-0.7, 0.05, 0.7] };
+
+  const FIST = [80, 100, 50, 0];
+  const UP = [0, 0, 0, 0];
+  const HOLD = { rel: 10, off: [-0.06, -0.08, 0.16] };   // thumb across front of curled middle finger
+  const HOLD_RP = { rel: 14, off: [-0.12, -0.08, 0.16] }; // thumb holding curled ring + pinky
+  const FWD = { point: [0, 1, 0], palm: [0, 0, 1] };
+
+  // Letter poses: per finger [mcp, pip, dip, spread], thumb tip target, orientation, optional motion
+  const P = {
+    A: { I: FIST, M: FIST, R: FIST, P: FIST, T: { at: [-0.45, 1.0, 0.26] } },
+    B: { I: [0, 0, 0, -4], M: UP, R: [0, 0, 0, -2], P: [0, 0, 0, -3], T: { at: [0.02, 0.52, 0.17] } },
+    C: { I: [22, 42, 22, -3], M: [22, 42, 22, 0], R: [22, 42, 22, -2], P: [22, 42, 22, -4], T: { rel: 8, off: [-0.04, -0.5, 0.0] }, point: [0, 1, 0], palm: [-0.85, 0, 0.5] },
+    D: { I: UP, M: [52, 82, 40, 0], R: [52, 82, 40, 0], P: [52, 82, 40, 0], T: { rel: 12, off: [-0.03, -0.06, 0.03] } },
+    E: { I: [42, 95, 65, 0], M: [42, 95, 65, 0], R: [42, 95, 65, 0], P: [42, 95, 65, 0], T: { at: [-0.03, 0.66, 0.3] } },
+    F: { I: [38, 62, 35, 0], M: [0, 0, 0, 4], R: [0, 0, 0, 7], P: [0, 0, 0, 10], T: { rel: 8, off: [-0.03, -0.04, 0.03] } },
+    G: { I: UP, M: FIST, R: FIST, P: FIST, T: { at: [-0.56, 1.16, 0.3] }, point: [-1, 0, 0], palm: [0, -0.25, -1] },
+    H: { I: [0, 0, 0, -3], M: [0, 0, 0, 1], R: FIST, P: FIST, T: HOLD_RP, point: [-1, 0, 0], palm: [0, -0.25, -1] },
+    I: { I: FIST, M: FIST, R: FIST, P: [0, 0, 0, 2], T: HOLD },
+    J: { I: FIST, M: FIST, R: FIST, P: [0, 0, 0, 2], T: HOLD, motion: 'J' },
+    K: { I: [0, 0, 0, 7], M: [38, 0, 0, -8], R: FIST, P: FIST, T: { rel: 10, off: [-0.1, -0.06, 0.02] } },
+    L: { I: UP, M: FIST, R: FIST, P: FIST, T: { at: [-1.0, 0.74, 0.14] } },
+    M: { I: [75, 100, 50, 0], M: [75, 100, 50, 0], R: [75, 100, 50, 0], P: FIST, T: { rel: 14, off: [0.1, -0.1, -0.03] } },
+    N: { I: [75, 100, 50, 0], M: [75, 100, 50, 0], R: FIST, P: FIST, T: { rel: 10, off: [0.1, -0.1, -0.03] } },
+    O: { I: [38, 62, 38, -3], M: [38, 62, 38, 0], R: [38, 62, 38, -2], P: [38, 62, 38, -4], T: { rel: 8, off: [-0.02, -0.06, 0.0] }, point: [0, 1, 0], palm: [-0.85, 0, 0.5] },
+    P: { I: [0, 0, 0, 7], M: [38, 0, 0, -8], R: FIST, P: FIST, T: { rel: 10, off: [-0.1, -0.06, 0.02] }, point: [0, -0.55, 0.85], palm: [0, -0.85, -0.55] },
+    Q: { I: UP, M: FIST, R: FIST, P: FIST, T: { at: [-0.56, 1.16, 0.3] }, point: [0, -0.95, 0.3], palm: [0, -0.3, -0.95] },
+    R: { I: [4, 0, 0, -10], M: [14, 0, 0, 10], R: FIST, P: FIST, T: HOLD_RP },
+    S: { I: FIST, M: FIST, R: FIST, P: FIST, T: HOLD },
+    T: { I: [75, 100, 50, 0], M: FIST, R: FIST, P: FIST, T: { rel: 6, off: [0.1, -0.08, -0.02] } },
+    U: { I: [0, 0, 0, -3], M: [0, 0, 0, 1], R: FIST, P: FIST, T: HOLD_RP },
+    V: { I: [0, 0, 0, 9], M: [0, 0, 0, -11], R: FIST, P: FIST, T: HOLD_RP },
+    W: { I: [0, 0, 0, 10], M: [0, 0, 0, 0], R: [0, 0, 0, 10], P: FIST, T: { rel: 18, off: [-0.08, -0.08, 0.16] } },
+    X: { I: [15, 92, 55, 0], M: FIST, R: FIST, P: FIST, T: HOLD },
+    Y: { I: FIST, M: FIST, R: FIST, P: [0, 0, 0, 16], T: { at: [-0.98, 0.76, 0.2] } },
+    Z: { I: UP, M: FIST, R: FIST, P: FIST, T: HOLD, motion: 'Z' },
+  };
+  for (const k in P) { if (!P[k].point) { P[k].point = FWD.point; P[k].palm = FWD.palm; } }
+
+  // ---- Forward kinematics: pose -> 21 points in hand-local space ----
+  function fingerPoints(f, a) {
+    const [mcp, pip, dip, spr] = a;
+    let R = m.rz(f.splay + (f.key === 'I' || f.key === 'M' ? spr : -spr));
+    const pts = [f.base];
+    let p = f.base;
+    const flex = [mcp, pip, dip];
+    for (let i = 0; i < 3; i++) {
+      R = m.mul(R, m.rx(flex[i]));
+      p = v.add(p, m.ap(R, [0, f.L[i], 0]));
+      pts.push(p);
+    }
+    return pts;
+  }
+
+  function solveThumb(target) {
+    const B = THUMB.cmc, L = THUMB.L, total = L[0] + L[1] + L[2];
+    const toT = v.sub(target, B);
+    const d = v.len(toT);
+    const dirT = v.norm(toT);
+    if (d >= total * 0.999) {
+      return [B, v.add(B, v.mul(dirT, L[0])), v.add(B, v.mul(dirT, L[0] + L[1])), v.add(B, v.mul(dirT, total))];
+    }
+    // initial chain bent outward along a pole, then FABRIK
+    const pole = v.norm(THUMB.pole);
+    const meta = v.norm(v.add(v.lerp(v.norm(THUMB.rest), dirT, 0.5), v.mul(pole, 0.35)));
+    const J = [B.slice(), v.add(B, v.mul(meta, L[0]))];
+    J.push(v.add(J[1], v.mul(v.norm(v.add(dirT, v.mul(pole, 0.25))), L[1])));
+    J.push(v.add(J[2], v.mul(dirT, L[2])));
+    for (let it = 0; it < 24; it++) {
+      J[3] = target.slice();
+      for (let i = 2; i >= 0; i--) J[i] = v.add(J[i + 1], v.mul(v.norm(v.sub(J[i], J[i + 1])), L[i]));
+      J[0] = B.slice();
+      for (let i = 1; i <= 3; i++) J[i] = v.add(J[i - 1], v.mul(v.norm(v.sub(J[i], J[i - 1])), L[i - 1]));
+    }
+    return J;
+  }
+
+  // Resolve a pose (possibly blended) to local points. Returns 21 points.
+  function posePoints(pose, thumbTargetOverride) {
+    const pts = new Array(21);
+    pts[0] = [0, 0, 0];
+    FINGERS.forEach((f) => {
+      const fp = fingerPoints(f, pose[f.key]);
+      f.idx.forEach((ix, i) => (pts[ix] = fp[i]));
+    });
+    const target = thumbTargetOverride || resolveTarget(pose.T, pts);
+    const tp = solveThumb(target);
+    for (let i = 0; i < 4; i++) pts[1 + i] = tp[i];
+    return pts;
+  }
+  function resolveTarget(T, pts) {
+    if (T.at) return T.at;
+    return v.add(pts[T.rel], T.off);
+  }
+  // Apply orientation about palm center
+  const CENTER = [0, 0.75, 0];
+  function orient(pts, point, palm) {
+    const R = m.basis(point, palm);
+    return pts.map((p) => v.add(m.ap(R, v.sub(p, CENTER)), CENTER));
+  }
+  function letterPoints(L) {
+    const pose = P[L];
+    return orient(posePoints(pose), pose.point, pose.palm);
+  }
+
+  // ---- Features (frame-invariant where possible) ----
+  // W: 21 3D points (any frame, any scale). IMG: 21 [x,y] image-plane, y pointing down, aspect-corrected.
+  function bend(a, b, c) {
+    const u = v.sub(b, a), w = v.sub(c, b);
+    const cs = v.dot(u, w) / ((v.len(u) * v.len(w)) || 1);
+    return Math.acos(Math.max(-1, Math.min(1, cs))) / D2R;
+  }
+  function ang(u, w) {
+    const cs = v.dot(u, w) / ((v.len(u) * v.len(w)) || 1);
+    return Math.acos(Math.max(-1, Math.min(1, cs))) / D2R;
+  }
+  function features(W, IMG) {
+    const palm = v.dist(W[0], W[9]) || 1;
+    const d = (i, j) => v.dist(W[i], W[j]) / palm;
+    const F = { palm };
+    FINGERS.forEach((f) => {
+      const [a, b, c, e] = f.idx;
+      const mcp = bend(W[0], W[a], W[b]);
+      const pip = bend(W[a], W[b], W[c]);
+      const dip = bend(W[b], W[c], W[e]);
+      F[f.key] = { mcp, pip, dip, total: mcp + pip + dip, reach: v.dist(W[0], W[e]) / palm };
+    });
+    F.tMcp = bend(W[1], W[2], W[3]);
+    F.tIp = bend(W[2], W[3], W[4]);
+    const axis = v.sub(W[17], W[5]);
+    F.across = v.dot(v.sub(W[4], W[5]), axis) / (v.dot(axis, axis) || 1);
+    F.thumbAway = d(4, 5);
+    F.thumbIndexAng = ang(v.sub(W[4], W[2]), v.sub(W[8], W[5]));
+    F.dTI = d(4, 8); F.dTM = d(4, 12); F.dTR = d(4, 16); F.dTP = d(4, 20);
+    F.dT_Ipip = d(4, 6); F.dT_Mpip = d(4, 10); F.dT_Rpip = d(4, 14);
+    F.dT_Mmcp = d(4, 9);
+    F.spreadIM = ang(v.sub(W[8], W[5]), v.sub(W[12], W[9]));
+    F.spreadMR = ang(v.sub(W[12], W[9]), v.sub(W[16], W[13]));
+    F.spreadRP = ang(v.sub(W[16], W[13]), v.sub(W[20], W[17]));
+    // crossing: index tip lies on the middle finger's far side
+    const ax = v.norm(axis);
+    const s8 = v.dot(v.sub(W[8], W[5]), ax), s12 = v.dot(v.sub(W[12], W[5]), ax);
+    F.cross = s8 - s12; // positive when crossed
+    F.crossN = F.cross / palm;
+    // thumb tip depth in front of (positive) or under (negative) the curled fingers
+    let nrm = v.norm(v.cross(v.sub(W[5], W[0]), v.sub(W[17], W[0])));
+    const dp = v.dot(v.sub(W[10], W[0]), nrm);
+    if (dp < 0) nrm = v.mul(nrm, -1);
+    F.tFront = (v.dot(v.sub(W[4], W[0]), nrm) - Math.abs(dp)) / palm;
+    // Image-plane direction of the index finger and of the hand
+    const dir = (a, b) => { const dx = IMG[b][0] - IMG[a][0], dy = IMG[b][1] - IMG[a][1]; const l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
+    F.idxDir = dir(5, 8);
+    F.handDir = dir(0, 9);
+    F.midDir = dir(9, 12);
+    return F;
+  }
+
+  // ---- Fuzzy helpers ----
+  const ramp = (x, lo, hi) => (lo < hi ? Math.max(0, Math.min(1, (x - lo) / (hi - lo))) : Math.max(0, Math.min(1, (lo - x) / (lo - hi))));
+  const band = (x, a, b, c, dd) => Math.min(ramp(x, a, b), ramp(x, dd, c));
+  const straight = (f) => Math.min(ramp(f.total, 95, 55), ramp(f.pip, 55, 30));
+  const folded = (f) => Math.max(ramp(f.pip, 45, 75), ramp(f.total, 120, 170));
+  const curled = (f) => Math.min(ramp(f.pip, 50, 80), ramp(f.mcp, 30, 55));
+  const hook = (f) => Math.min(ramp(f.pip, 45, 75), ramp(f.mcp, 50, 25));
+  const curved = (f) => band(f.total, 40, 75, 175, 215);
+  const pointing = (dir, want) => {
+    const [x, y] = dir; // y down
+    if (want === 'up') return ramp(-y, 0.35, 0.75);
+    if (want === 'down') return ramp(y, 0.2, 0.6);
+    if (want === 'side') return ramp(Math.abs(x), 0.5, 0.85);
+    return 1;
+  };
+  const N = { I: 'index', M: 'middle', R: 'ring', P: 'pinky' };
+  const up = (k) => ({ id: 'up' + k, text: `{${N[k]}} straight`, fix: `Straighten your {${N[k]}} finger`, f: (F) => straight(F[k]) });
+  const down = (k) => ({ id: 'dn' + k, text: `{${N[k]}} folded down`, fix: `Fold your {${N[k]}} finger down`, f: (F) => folded(F[k]) });
+  const thumbIn = { id: 'tin', text: '{thumb} tucked in', fix: 'Bring your {thumb} in against your fingers', f: (F) => ramp(F.thumbAway, 0.95, 0.7) };
+  const together = (a, b, key) => ({ id: 'tog' + a + b, text: `{${N[a]}} and {${N[b]}} together`, fix: `Press your {${N[a]}} and {${N[b]}} fingers together`, f: (F) => ramp(F[key], 22, 12) });
+  const apart = (a, b, key, lo = 12, hi = 20) => ({ id: 'apt' + a + b, text: `{${N[a]}} and {${N[b]}} spread apart`, fix: `Spread your {${N[a]}} and {${N[b]}} fingers apart`, f: (F) => ramp(F[key], lo, hi) });
+  const dirCheck = (src, want, label) => ({ id: 'dir' + want, text: label, fix: label.replace(/^Fingers/, 'Turn your hand so your fingers'), f: (F) => pointing(F[src], want) });
+  const notCrossed = { id: 'ncr', text: 'Fingers not crossed', fix: 'Uncross your fingers', f: (F) => ramp(F.crossN, 0.02, -0.06) };
+
+  const RULES = {
+    A: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'tside', text: '{thumb} along the side of the fist', fix: 'Rest your {thumb} against the side of your {index} finger, not across the front', f: (F) => ramp(F.across, 0.18, 0.02) },
+      { id: 'tup', text: '{thumb} straight', fix: 'Keep your {thumb} straight', f: (F) => ramp(F.tIp + F.tMcp, 115, 75) }],
+    B: [up('I'), up('M'), up('R'), up('P'), together('I', 'M', 'spreadIM'),
+      { id: 'tacross', text: '{thumb} folded across the palm', fix: 'Fold your {thumb} across your palm', f: (F) => Math.min(ramp(F.across, 0.05, 0.25), ramp(F.thumbAway, 0.9, 0.65)) }],
+    C: [{ id: 'cv', text: 'All four fingers curved', fix: 'Curve all four fingers, like holding a cup', f: (F) => Math.min(curved(F.I), curved(F.M), curved(F.R)) },
+      { id: 'gap', text: 'Gap between {thumb} and fingertips', fix: 'Leave a gap between your {thumb} and your fingertips', f: (F) => band(F.dTI, 0.2, 0.32, 1.0, 1.3) },
+      together('I', 'M', 'spreadIM')],
+    D: [up('I'), down('M'), down('R'), down('P'),
+      { id: 'tm', text: '{thumb} touches {middle} tip', fix: 'Touch your {middle} fingertip to your {thumb}', f: (F) => ramp(F.dTM, 0.45, 0.25) }],
+    E: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'etuck', text: '{thumb} tucked under the fingertips', fix: 'Tuck your {thumb} under, so your fingertips rest on it', f: (F) => Math.min(ramp(F.across, 0.1, 0.3), ramp(Math.min(F.dTI, F.dTM), 0.6, 0.38)) },
+      { id: 'ebent', text: 'Fingers bent, not a tight fist', fix: 'Loosen the fist a little: bend at the middle joints with nails showing', f: (F) => ramp((F.I.mcp + F.M.mcp) / 2, 75, 55) }],
+    F: [{ id: 'ft', text: '{thumb} and {index} tips touch', fix: 'Touch the tip of your {index} finger to your {thumb}', f: (F) => ramp(F.dTI, 0.4, 0.22) },
+      up('M'), up('R'), up('P')],
+    G: [up('I'), down('M'), down('R'), down('P'),
+      { id: 'gpar', text: '{thumb} parallel to {index}', fix: 'Hold your {thumb} out, parallel to your {index} finger', f: (F) => Math.min(ramp(F.thumbIndexAng, 50, 30), ramp(F.thumbAway, 0.2, 0.32)) },
+      dirCheck('idxDir', 'side', 'Fingers point sideways')],
+    H: [up('I'), up('M'), down('R'), down('P'), together('I', 'M', 'spreadIM'), dirCheck('idxDir', 'side', 'Fingers point sideways')],
+    I: [up('P'), down('I'), down('M'), down('R'), thumbIn],
+    J: [up('P'), down('I'), down('M'), down('R'), thumbIn],
+    K: [up('I'), up('M'), down('R'), down('P'), apart('I', 'M', 'spreadIM', 10, 18),
+      { id: 'kt', text: '{thumb} between {index} and {middle}', fix: 'Place your {thumb} tip between your {index} and {middle} fingers', f: (F) => ramp(Math.min(F.dT_Mpip, F.dT_Mmcp, F.dT_Ipip), 0.55, 0.35) },
+      dirCheck('handDir', 'up', 'Fingers point up')],
+    L: [up('I'), down('M'), down('R'), down('P'),
+      { id: 'lt', text: '{thumb} stretched out to the side', fix: 'Stretch your {thumb} out to the side to make an L', f: (F) => Math.min(ramp(F.thumbAway, 0.5, 0.72), ramp(F.thumbIndexAng, 30, 48)) },
+      dirCheck('idxDir', 'up', 'Fingers point up')],
+    M: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'mt', text: '{thumb} under three fingers', fix: 'Slide your {thumb} further under, between your {ring} and {pinky} fingers', f: (F) => ramp(F.across, 0.55, 0.72) }, { id: 'tunder', text: '{thumb} under the fingers', fix: 'Tuck your {thumb} under your fingers, not across the front', f: (F) => ramp(F.tFront, 0.1, 0.02) }, { id: 'tight', text: 'Fingers folded over the {thumb}', fix: 'Fold your fingers down over your {thumb}', f: (F) => ramp(F.I.mcp, 52, 66) }],
+    N: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'nt', text: '{thumb} under two fingers', fix: 'Place your {thumb} between your {middle} and {ring} fingers', f: (F) => band(F.across, 0.22, 0.36, 0.6, 0.72) }, { id: 'tunder', text: '{thumb} under the fingers', fix: 'Tuck your {thumb} under your fingers, not across the front', f: (F) => ramp(F.tFront, 0.1, 0.02) }, { id: 'tight', text: 'Fingers folded over the {thumb}', fix: 'Fold your fingers down over your {thumb}', f: (F) => ramp(F.I.mcp, 52, 66) }],
+    O: [{ id: 'ocv', text: 'Fingers curved', fix: 'Curve your fingers round', f: (F) => Math.min(curved(F.I), curved(F.M)) },
+      { id: 'ot', text: '{thumb} touches the fingertips', fix: 'Bring your fingertips down to touch your {thumb}', f: (F) => ramp(F.dTI, 0.42, 0.24) },
+      { id: 'oup', text: '{middle}, {ring}, {pinky} curved too', fix: 'Curve your other fingers to round out the O', f: (F) => Math.min(ramp(F.M.total, 55, 85), ramp(F.R.total, 55, 85)) }],
+    P: [up('I'), up('M'), down('R'), down('P'), apart('I', 'M', 'spreadIM', 10, 18),
+      { id: 'pt', text: '{thumb} between {index} and {middle}', fix: 'Place your {thumb} tip between your {index} and {middle} fingers', f: (F) => ramp(Math.min(F.dT_Mpip, F.dT_Mmcp, F.dT_Ipip), 0.55, 0.35) },
+      dirCheck('handDir', 'down', 'Fingers point down')],
+    Q: [up('I'), down('M'), down('R'), down('P'),
+      { id: 'qpar', text: '{thumb} parallel to {index}', fix: 'Hold your {thumb} out, parallel to your {index} finger', f: (F) => Math.min(ramp(F.thumbIndexAng, 50, 30), ramp(F.thumbAway, 0.2, 0.32)) },
+      dirCheck('idxDir', 'down', 'Fingers point down')],
+    R: [up('I'), up('M'), down('R'), down('P'),
+      { id: 'rx', text: '{index} and {middle} crossed', fix: 'Cross your {middle} finger over your {index} finger', f: (F) => ramp(F.crossN, -0.02, 0.06) }],
+    S: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'st', text: '{thumb} across the front of the fist', fix: 'Wrap your {thumb} across the front of your fingers', f: (F) => Math.min(band(F.across, 0.12, 0.25, 0.62, 0.75), ramp(F.dT_Mpip, 0.6, 0.38), ramp(F.tFront, 0.0, 0.08)) },
+      { id: 'sfist', text: 'Tight fist', fix: 'Close your fist fully', f: (F) => ramp((F.I.mcp + F.M.mcp) / 2, 50, 68) }],
+    T: [down('I'), down('M'), down('R'), down('P'),
+      { id: 'tt', text: '{thumb} tucked between {index} and {middle}', fix: 'Tuck your {thumb} up between your {index} and {middle} fingers', f: (F) => Math.min(ramp(F.dT_Ipip, 0.48, 0.3), band(F.across, -0.05, 0.08, 0.4, 0.5)) }, { id: 'tunder', text: '{thumb} under the fingers', fix: 'Tuck your {thumb} under your fingers, not across the front', f: (F) => ramp(F.tFront, 0.1, 0.02) }],
+    U: [up('I'), up('M'), down('R'), down('P'), together('I', 'M', 'spreadIM'), notCrossed, dirCheck('idxDir', 'up', 'Fingers point up')],
+    V: [up('I'), up('M'), down('R'), down('P'), apart('I', 'M', 'spreadIM'), notCrossed, dirCheck('idxDir', 'up', 'Fingers point up'),
+      { id: 'vt', text: '{thumb} holding {ring} and {pinky}', fix: 'Move your {thumb} off your {middle} finger and onto your {ring} finger', f: (F) => ramp(F.dT_Mpip, 0.3, 0.45) }],
+    W: [up('I'), up('M'), up('R'), down('P'), apart('I', 'M', 'spreadIM', 8, 14)],
+    X: [{ id: 'xh', text: '{index} bent into a hook', fix: 'Raise your {index} finger and bend it into a hook', f: (F) => Math.min(ramp(F.I.pip, 40, 65), ramp(F.I.mcp, 55, 30)) }, down('M'), down('R'), down('P')],
+    Y: [up('P'), down('I'), down('M'), down('R'),
+      { id: 'yt', text: '{thumb} stretched out', fix: 'Stretch your {thumb} out away from your hand', f: (F) => ramp(F.thumbAway, 0.5, 0.72) }],
+    Z: [up('I'), down('M'), down('R'), down('P'), thumbIn],
+  };
+  const MOTION = { J: 'P', Z: 'I' }; // which fingertip traces the motion
+
+  function scoreLetter(L, F) {
+    const checks = RULES[L].map((c) => ({ id: c.id, text: c.text, fix: c.fix, s: c.f(F) }));
+    const mean = checks.reduce((a, c) => a + c.s, 0) / checks.length;
+    const min = Math.min(...checks.map((c) => c.s));
+    return { L, score: 0.6 * mean + 0.4 * min, mean, min, checks };
+  }
+  function classify(F, exclude) {
+    const out = [];
+    for (const L in RULES) { if (exclude && exclude.includes(L)) continue; out.push(scoreLetter(L, F)); }
+    out.sort((a, b) => b.score - a.score);
+    return out;
+  }
+  // Personal templates: compact vector of joint angles + key distances
+  function vec(F) {
+    const a = [];
+    for (const k of ['I', 'M', 'R', 'P']) a.push(F[k].mcp / 90, F[k].pip / 90, F[k].dip / 90);
+    a.push(F.across, F.thumbAway, F.dTI, F.dTM, F.dT_Ipip, F.dT_Mpip, F.spreadIM / 30, F.crossN * 3, F.thumbIndexAng / 90, F.handDir[0], F.handDir[1]);
+    return a;
+  }
+  function vecSim(a, b) {
+    let s = 0; for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) ** 2;
+    return Math.exp(-s / 0.35);
+  }
+
+  return { v, m, FINGERS, THUMB, POSES: P, RULES, MOTION, posePoints, resolveTarget, orient, letterPoints, solveThumb, features, scoreLetter, classify, vec, vecSim, CENTER };
+})();
+
+
+</script>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const LETTERS = Object.keys(FS.POSES);
+const FINGER_KEYS = ['thumb', 'index', 'middle', 'ring', 'pinky'];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('fs.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('fs.' + k, JSON.stringify(v)); } catch {} },
+};
+
+// ---------------- Letter content ----------------
+const INFO = {
+  A: ['Fist, thumb up the side', ['Make a fist with {index}, {middle}, {ring} and {pinky}.', 'Rest {thumb} straight up against the side of {index}.', 'Palm faces forward.'], '<b>Not S or T.</b> In A the thumb stays on the side of the fist. In S it wraps across the front; in T it tucks between the first two fingers.'],
+  B: ['Flat hand, thumb folded', ['Hold {index}, {middle}, {ring} and {pinky} straight up, pressed together.', 'Fold {thumb} across your palm.', 'Palm faces forward.'], '<b>Keep the fingers touching.</b> Spread fingers look like the number 5.'],
+  C: ['Curved like a cup', ['Curve all four fingers together, as if holding a cup.', 'Curve {thumb} underneath to match them.', 'Turn your hand so the C shape is seen from the side.'], '<b>Leave a gap.</b> If {thumb} touches the fingertips, the sign becomes O.'],
+  D: ['Index up, others make a circle', ['Point {index} straight up.', 'Curve {middle}, {ring} and {pinky} down.', 'Touch the tip of {middle} to the tip of {thumb}.'], '<b>Think of a lowercase d.</b> The straight finger is the stem, the circle is the bowl.'],
+  E: ['Fingertips rest on the thumb', ['Bend {index}, {middle}, {ring} and {pinky} down at the middle joints.', 'Tuck {thumb} under them, across the palm.', 'Let your fingertips rest on top of {thumb}.'], '<b>Not a tight fist.</b> Your fingernails should still be visible from the front.'],
+  F: ['Thumb and index make a circle', ['Touch the tips of {index} and {thumb} together.', 'Hold {middle}, {ring} and {pinky} straight and slightly spread.', 'Palm faces forward.'], '<b>Looks like "OK".</b> The circle is small and the other three fingers stay up.'],
+  G: ['Index and thumb point sideways', ['Close {middle}, {ring} and {pinky} into your palm.', 'Point {index} sideways, across your body.', 'Hold {thumb} above it, parallel, as if pinching something thin.'], '<b>Sideways, not up.</b> The same shape pointed up would read as a different sign.'],
+  H: ['Two fingers point sideways', ['Hold {index} and {middle} straight and together.', 'Point them sideways, across your body.', 'Hold {ring} and {pinky} down with {thumb}.'], '<b>Same shape as U,</b> turned on its side.'],
+  I: ['Little finger up', ['Make a fist.', 'Raise {pinky} straight up.', 'Rest {thumb} across the front of your fingers.'], '<b>Only the pinky.</b> If {thumb} also sticks out, you are signing Y.'],
+  J: ['Draw a J with the pinky', ['Start with the I handshape: only {pinky} raised.', 'Move your hand down and twist the wrist so {pinky} draws a J in the air.', 'Finish with the palm turned toward you.'], '<b>It is a movement.</b> Press Replay motion to watch the path again.'],
+  K: ['V with the thumb between', ['Raise {index} straight up.', 'Raise {middle}, angled slightly forward, making a V.', 'Place the tip of {thumb} between them, against {middle}.', 'Fold {ring} and {pinky} down.'], '<b>K vs V.</b> In V, the thumb holds down the ring and pinky instead.'],
+  L: ['Thumb and index make an L', ['Raise {index} straight up.', 'Stretch {thumb} out to the side.', 'Close {middle}, {ring} and {pinky}.'], '<b>An L you can read.</b> From the front, your hand shows the letter L.'],
+  M: ['Three fingers over the thumb', ['Tuck {thumb} under your fingers.', 'Fold {index}, {middle} and {ring} down over it.', 'The tip of {thumb} peeks out between {ring} and {pinky}.'], '<b>Count the fingers.</b> M covers the thumb with three fingers, N with two.'],
+  N: ['Two fingers over the thumb', ['Tuck {thumb} under your fingers.', 'Fold {index} and {middle} down over it.', 'The tip of {thumb} peeks out between {middle} and {ring}.'], '<b>Count the fingers.</b> N covers the thumb with two fingers, M with three.'],
+  O: ['Fingertips meet the thumb', ['Curve all four fingers.', 'Bring the tip of {thumb} to touch the tips of {index} and {middle}.', 'Turn your hand slightly so the round O shape shows.'], '<b>O vs C.</b> In O everything touches; C leaves a gap.'],
+  P: ['K pointing down', ['Make the K handshape.', 'Tip your hand forward so {index} points out and {middle} points down.'], '<b>Same fingers as K,</b> only the direction changes.'],
+  Q: ['G pointing down', ['Make the G handshape.', 'Turn it so {index} and {thumb} point down at the floor.'], '<b>Same fingers as G,</b> only the direction changes.'],
+  R: ['Crossed fingers', ['Raise {index} and {middle}.', 'Cross {middle} over the front of {index}.', 'Hold {ring} and {pinky} down with {thumb}.'], '<b>Like crossing your fingers for luck.</b>'],
+  S: ['Fist, thumb across the front', ['Make a tight fist.', 'Wrap {thumb} across the front of your fingers.'], '<b>Not A.</b> In A, {thumb} stays on the side of the fist.'],
+  T: ['Thumb tucked between two fingers', ['Make a fist.', 'Tuck {thumb} up between {index} and {middle}.', 'The tip of {thumb} pokes out between them.'], '<b>T vs N vs M.</b> The thumb comes out after one, two or three fingers.'],
+  U: ['Two fingers together', ['Raise {index} and {middle}, pressed together.', 'Hold {ring} and {pinky} down with {thumb}.', 'Palm faces forward.'], '<b>No gap.</b> Opening the fingers turns U into V.'],
+  V: ['Two fingers apart', ['Raise {index} and {middle} in a V.', 'Hold {ring} and {pinky} down with {thumb}.'], '<b>Also the peace sign.</b> Keep the palm facing forward.'],
+  W: ['Three fingers apart', ['Raise {index}, {middle} and {ring}, spread apart.', 'Touch {thumb} to {pinky} to hold it down.'], '<b>Three points</b> make the three strokes of a W.'],
+  X: ['Index bent into a hook', ['Make a fist.', 'Raise {index} and bend it into a hook.', 'Rest {thumb} against the side of {middle}.'], '<b>Like a hooked finger beckoning.</b> Only the top two joints bend.'],
+  Y: ['Thumb and little finger out', ['Make a fist.', 'Stretch {thumb} and {pinky} out wide.', 'Palm faces forward.'], '<b>The "hang loose" shape.</b>'],
+  Z: ['Draw a Z with the index', ['Point {index} up; fold the other fingers down under {thumb}.', 'Draw a Z in the air with the tip of {index}: across, diagonally back, then across again.'], '<b>It is a movement.</b> Draw it as you would read it.'],
+};
+function chipify(s) {
+  return s.replace(/\{(thumb|index|middle|ring|pinky)\}/g, (_, f) => `<span class="chip" style="--c:var(--f-${f})">${f}</span>`);
+}
+
+// ---------------- Tokens ----------------
+function tok(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888'; }
+
+// ---------------- 3D hand view ----------------
+class HandView {
+  constructor(canvas, opts = {}) {
+    this.canvas = canvas;
+    this.mini = !!opts.mini;
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(this.mini ? 30 : 30, 1, 0.1, 50);
+    this.yaw = 18; this.pitch = 8; this.dist = this.mini ? 4.3 : 5.6;
+    this.yawT = this.yaw; this.pitchT = this.pitch;
+    this.lookAt = new THREE.Vector3(0, 0.9, 0);
+
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x445048, 1.4);
+    const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(2.5, 4, 5);
+    const rim = new THREE.DirectionalLight(0xffffff, 1.0); rim.position.set(-3, 2, -4);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(-4, -1, 3);
+    this.scene.add(hemi, key, rim, fill);
+
+    this.root = new THREE.Group();      // mirror for left hand
+    this.hand = new THREE.Group();      // oriented hand
+    this.root.add(this.hand);
+    this.scene.add(this.root);
+
+    this.mats = { clay: new THREE.MeshStandardMaterial({ roughness: 0.62, metalness: 0, side: THREE.DoubleSide }) };
+    FINGER_KEYS.forEach((k) => (this.mats[k] = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0, side: THREE.DoubleSide })));
+    this.buildMeshes();
+
+    // motion path (J, Z): a tube showing the whole path plus an arrowhead
+    this.pathMat = new THREE.MeshStandardMaterial({ roughness: 0.4, metalness: 0, emissiveIntensity: 0.35, transparent: true, opacity: 0.7, depthTest: false });
+    this.path = null;
+    this.cur = null; this.letter = null; this.t0 = performance.now();
+    this.applyTheme();
+    if (!this.mini) this.bindDrag();
+    this.resize();
+    new ResizeObserver(() => this.resize()).observe(canvas);
+  }
+  applyTheme() {
+    this.mats.clay.color.set(tok('--clay'));
+    FINGER_KEYS.forEach((k) => this.mats[k].color.set(tok('--f-' + k)));
+    this.pathMat.color.set(tok('--accent')); this.pathMat.emissive.set(tok('--accent'));
+  }
+  buildMeshes() {
+    const cyl = new THREE.CylinderGeometry(1, 1, 1, 22, 1, true);
+    cyl.translate(0, 0.5, 0);
+    const sph = new THREE.SphereGeometry(1, 24, 16);
+    this.segs = []; this.joints = [];
+    const mk = (geo, mat) => { const me = new THREE.Mesh(geo, mat); this.hand.add(me); return me; };
+    // chains: [landmark indices], radius, finger key
+    const chains = [
+      { ids: [1, 2, 3, 4], r: [0.115, 0.095, 0.085, 0.08], k: 'thumb' },
+      ...FS.FINGERS.map((f) => ({ ids: f.idx, r: [f.r, f.r * 0.93, f.r * 0.86, f.r * 0.8], k: f.name })),
+    ];
+    this.chains = chains;
+    chains.forEach((c) => {
+      c.seg = []; c.jt = [];
+      for (let i = 0; i < 4; i++) {
+        const tip = i === 3;
+        const jm = mk(sph, tip ? this.mats[c.k] : this.mats.clay);
+        jm.scale.setScalar(c.r[i]);
+        c.jt.push(jm);
+        if (i < 3) c.seg.push(mk(cyl, i === 2 ? this.mats[c.k] : this.mats.clay));
+      }
+    });
+    // palm
+    const s = new THREE.Shape();
+    s.moveTo(-0.16, 0.0);
+    s.quadraticCurveTo(-0.34, 0.04, -0.35, 0.38);
+    s.lineTo(-0.35, 0.86);
+    s.quadraticCurveTo(-0.33, 0.98, -0.18, 1.0);
+    s.quadraticCurveTo(0.02, 1.03, 0.2, 0.95);
+    s.quadraticCurveTo(0.33, 0.9, 0.33, 0.78);
+    s.lineTo(0.31, 0.2);
+    s.quadraticCurveTo(0.28, 0.0, 0.14, 0.0);
+    s.closePath();
+    const pg = new THREE.ExtrudeGeometry(s, { depth: 0.14, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.07, bevelSegments: 5, curveSegments: 16 });
+    pg.translate(0, 0, -0.07);
+    pg.computeVertexNormals();
+    this.palm = mk(pg, this.mats.clay);
+    // wrist / forearm stub
+    const fa = new THREE.CylinderGeometry(0.25, 0.27, 0.7, 28, 1, false);
+    fa.translate(0, -0.28, 0);
+    this.forearm = mk(fa, this.mats.clay);
+    this.forearm.scale.set(1, 1, 0.62);
+  }
+  placeSeg(mesh, a, b, r0, r1) {
+    const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+    const d = B.clone().sub(A); const L = d.length();
+    mesh.position.copy(A);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+    const r = (r0 + r1) / 2;
+    mesh.scale.set(r, L, r);
+  }
+  bindDrag() {
+    let down = null;
+    this.canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, yaw: this.yawT, pitch: this.pitchT }; this.canvas.setPointerCapture(e.pointerId); });
+    this.canvas.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      this.yawT = down.yaw - (e.clientX - down.x) * 0.45;
+      this.pitchT = Math.max(-70, Math.min(70, down.pitch + (e.clientY - down.y) * 0.35));
+      this.onDrag && this.onDrag();
+    });
+    const up = () => (down = null);
+    this.canvas.addEventListener('pointerup', up);
+    this.canvas.addEventListener('pointercancel', up);
+  }
+  setView(name) {
+    const base = { mirror: [18, 8], yours: [180 + 18, 14], side: [92, 6] }[name] || [18, 8];
+    // unwrap so we turn the short way
+    let y = base[0]; while (y - this.yawT > 180) y -= 360; while (this.yawT - y > 180) y += 360;
+    this.yawT = y; this.pitchT = base[1];
+  }
+  setLeft(left) { this.root.scale.x = left ? -1 : 1; }
+  resize() {
+    const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+    if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+  static flat(pose) {
+    const a = [];
+    ['I', 'M', 'R', 'P'].forEach((k) => a.push(...pose[k]));
+    return a;
+  }
+  setLetter(L, opts = {}) {
+    this.bumpT = 0;
+    this.letter = L;
+    const pose = FS.POSES[L];
+    const target = { f: HandView.flat(pose), point: pose.point.slice(), palm: pose.palm.slice() };
+    const pts = FS.posePoints(pose);
+    target.thumb = FS.resolveTarget(pose.T, pts);
+    this.target = target;
+    if (!this.cur) this.cur = JSON.parse(JSON.stringify(target));
+    this.t0 = performance.now();
+    this.buildPath(L);
+    // repeated letter in fingerspelling: a small sideways slide
+    if (opts.bump) this.bumpT = performance.now();
+  }
+  handMatrix(point, palm, mo) {
+    const B = FS.m.basis(point, palm);
+    const M4 = new THREE.Matrix4().set(B[0], B[1], B[2], 0, B[3], B[4], B[5], 0, B[6], B[7], B[8], 0, 0, 0, 0, 1);
+    const tw = new THREE.Matrix4().makeRotationY(mo.twist * Math.PI / 180);
+    const R = tw.multiply(M4);
+    const C = new THREE.Vector3(...FS.CENTER);
+    const pos = C.clone().sub(C.clone().applyMatrix4(R)).add(new THREE.Vector3(...mo.off));
+    return { R, M: R.clone().setPosition(pos), tw };
+  }
+  buildPath(L) {
+    if (this.path) { this.root.remove(this.path); this.path.traverse((o) => o.geometry && o.geometry.dispose()); this.path = null; }
+    const pose = FS.POSES[L];
+    if (!pose.motion) return;
+    const P = FS.posePoints(pose);
+    const tip = new THREE.Vector3(...P[pose.motion === 'J' ? 20 : 8]);
+    const pts = [];
+    const saveT0 = this.t0;
+    for (let i = 0; i <= 60; i++) {
+      const u = i / 60;
+      this.t0 = 0;
+      const mo = this.motion(500 + u * 1600);
+      pts.push(tip.clone().applyMatrix4(this.handMatrix(pose.point, pose.palm, mo).M));
+    }
+    this.t0 = saveT0;
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 120, 0.028, 10, false), this.pathMat));
+    const end = pts[pts.length - 1], dir = end.clone().sub(pts[pts.length - 4]).normalize();
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.2, 18), this.pathMat);
+    cone.position.copy(end).add(dir.clone().multiplyScalar(0.06));
+    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    g.add(cone);
+    const start = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), this.pathMat);
+    start.position.copy(pts[0]); g.add(start);
+    g.renderOrder = 10; g.traverse((o) => (o.renderOrder = 10));
+    this.path = g;
+    this.root.add(g);
+  }
+  motion(t) {
+    const res = this.motionBase(t);
+    if (this.bumpT) {
+      const u = (t - this.bumpT) / 420;
+      if (u >= 0 && u < 1) res.off = [res.off[0] + 0.32 * Math.sin(Math.PI * u), res.off[1], res.off[2]];
+    }
+    return res;
+  }
+  motionBase(t) {
+    // returns offset + extra twist for motion letters; period 2.8 s
+    const L = this.letter;
+    const res = { off: [0, 0, 0], twist: 0, u: -1 };
+    if (!FS.POSES[L] || !FS.POSES[L].motion) return res;
+    const T = ((t - this.t0) / 1000) % 2.8;
+    const u = Math.max(0, Math.min(1, (T - 0.5) / 1.6));
+    res.u = T < 0.5 ? -1 : u;
+    const ease = (x) => x * x * (3 - 2 * x);
+    if (L === 'J') {
+      if (u < 0.55) { const s = ease(u / 0.55); res.off = [0, -0.85 * s, 0.1 * s]; }
+      else {
+        const s = ease((u - 0.55) / 0.45), a = s * Math.PI * 0.75;
+        res.off = [-0.3 * Math.sin(a), -0.85 - 0.3 * Math.sin(a * 0.67) + 0.3 * (1 - Math.cos(a)) * 0.9, 0.1];
+        res.twist = 55 * s;
+      }
+    } else if (L === 'Z') {
+      const P = [[-0.5, 0.42], [0.5, 0.42], [-0.5, -0.42], [0.5, -0.42]];
+      const s = u * 3, i = Math.min(2, Math.floor(s)), f = s - i;
+      res.off = [P[i][0] + (P[i + 1][0] - P[i][0]) * f, P[i][1] + (P[i + 1][1] - P[i][1]) * f, 0];
+    }
+    return res;
+  }
+  frame(now, dt) {
+    if (!this.target) return;
+    const k = 1 - Math.exp(-dt * 9);
+    const c = this.cur, t = this.target;
+    for (let i = 0; i < c.f.length; i++) c.f[i] += (t.f[i] - c.f[i]) * k;
+    for (let i = 0; i < 3; i++) { c.thumb[i] += (t.thumb[i] - c.thumb[i]) * k; c.point[i] += (t.point[i] - c.point[i]) * k; c.palm[i] += (t.palm[i] - c.palm[i]) * k; }
+    const pose = { I: c.f.slice(0, 4), M: c.f.slice(4, 8), R: c.f.slice(8, 12), P: c.f.slice(12, 16) };
+    const P = FS.posePoints(pose, c.thumb);
+    // meshes in hand-local space
+    this.chains.forEach((ch) => {
+      for (let i = 0; i < 4; i++) ch.jt[i].position.set(...P[ch.ids[i]]);
+      for (let i = 0; i < 3; i++) this.placeSeg(ch.seg[i], P[ch.ids[i]], P[ch.ids[i + 1]], ch.r[i], ch.r[i + 1]);
+    });
+    // orientation about CENTER, plus motion
+    const mo = this.motion(now);
+    const { R, M, tw } = this.handMatrix(c.point, c.palm, mo);
+    this.hand.matrixAutoUpdate = false;
+    this.hand.matrix.copy(M);
+    this.hand.matrixWorldNeedsUpdate = true;
+    // forearm hangs down from the wrist instead of following the fingers rigidly
+    const pw = new THREE.Vector3(...c.point).normalize().applyMatrix4(tw);
+    const want = pw.clone().multiplyScalar(-0.45).add(new THREE.Vector3(0, -1, 0.15)).normalize();
+    const inv = new THREE.Matrix4().copy(R).invert();
+    const local = want.applyMatrix4(inv).normalize();
+    this.forearm.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), local);
+
+    const mi = FS.POSES[this.letter].motion;
+    // camera follows the hand's center
+    this.yaw += (this.yawT - this.yaw) * (1 - Math.exp(-dt * 7));
+    this.pitch += (this.pitchT - this.pitch) * (1 - Math.exp(-dt * 7));
+    const yc = new THREE.Vector3(0, 0.95, 0).applyMatrix4(this.hand.matrix);
+    if (mi) yc.sub(new THREE.Vector3(...mo.off)).add(new THREE.Vector3(0, mi === 'J' ? -0.45 : -0.05, 0));
+    this.lookAt.lerp(yc, 1 - Math.exp(-dt * 5));
+    const yr = this.yaw * Math.PI / 180, pr = this.pitch * Math.PI / 180;
+    this.camera.position.set(
+      this.lookAt.x + this.dist * Math.sin(yr) * Math.cos(pr),
+      this.lookAt.y + this.dist * Math.sin(pr),
+      this.lookAt.z + this.dist * Math.cos(yr) * Math.cos(pr));
+    this.camera.lookAt(this.lookAt);
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+// ---------------- App state ----------------
+const state = {
+  tab: 'learn', letter: 'A', left: store.get('left', false), view: 'mirror',
+  mode: 'abc', target: 'A', word: 'HELLO', wordIx: 0,
+  streak: 0, done: 0, best: store.get('best', 0), signed: new Set(store.get('signed', [])),
+};
+const big = new HandView($('#hand3d'));
+const mini = new HandView($('#mini3d'), { mini: true });
+const spellView = new HandView($('#spell3d'));
+big.onDrag = () => { $$('[data-view]').forEach((b) => b.setAttribute('aria-pressed', 'false')); };
+
+// rail
+const rail = $('#rail');
+LETTERS.forEach((L) => {
+  const b = document.createElement('button');
+  b.textContent = L; b.dataset.l = L; b.setAttribute('aria-label', 'Letter ' + L);
+  if (FS.POSES[L].motion) { const s = document.createElement('span'); s.className = 'mv'; s.title = 'Has a movement'; b.appendChild(s); }
+  b.addEventListener('click', () => selectLetter(L));
+  rail.appendChild(b);
+});
+$('#legend').innerHTML = FINGER_KEYS.map((k) => `<span class="chip" style="--c:var(--f-${k})">${k}</span>`).join('');
+
+function markSigned() {
+  $$('#rail button').forEach((b) => b.classList.toggle('done', state.signed.has(b.dataset.l)));
+  renderProgressCard();
+}
+let shownPct = 0;
+function renderProgressCard() {
+  const n = state.signed.size, pct = Math.round(n / 26 * 100);
+  const next = LETTERS.find((L) => !state.signed.has(L));
+  const bar = $('#segbar');
+  if (!bar.children.length) LETTERS.forEach((L) => { const i = document.createElement('i'); i.title = L; bar.appendChild(i); });
+  let k = 0;
+  [...bar.children].forEach((el, ix) => {
+    const on = state.signed.has(LETTERS[ix]);
+    if (on && !el.classList.contains('on')) { el.style.setProperty('--k', k++); el.classList.add('on'); }
+    if (!on) el.classList.remove('on');
+    el.classList.toggle('next', LETTERS[ix] === next);
+    el.title = `${LETTERS[ix]}${on ? ' · signed' : ''}`;
+  });
+  bar.setAttribute('aria-label', `${n} of 26 letters signed`);
+  $('#pcard-sub').textContent = n === 26 ? 'all 26 signed' : `${n} of 26 signed`;
+  $('#pcard-next').textContent = next ? `Practice ${next}` : 'Done';
+  $('#pcard-go').hidden = !next;
+  $('#pcard-go').title = next ? `Next unsigned letter: ${next}` : '';
+  $('#pcard-go').dataset.l = next || '';
+  // count the percentage up from what is currently shown
+  const from = shownPct, t0 = performance.now(), el = $('#pcard-pct');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tick = (now) => {
+    const u = reduce ? 1 : Math.min(1, (now - t0) / 700);
+    el.textContent = Math.round(from + (pct - from) * (1 - Math.pow(1 - u, 3)));
+    if (u < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick); shownPct = pct;
+}
+$('#pcard-go').onclick = () => { const L = $('#pcard-go').dataset.l; if (!L) return; setMode('abc'); setTarget(L); showTab('practice'); };
+function setBubble(good) {
+  $('#bubble').classList.toggle('good', !!good);
+  $('#bubble-icon').innerHTML = `<use href="#i-${good ? 'sparkle' : 'message'}"/>`;
+}
+
+function selectLetter(L) {
+  state.letter = L;
+  $$('#rail button').forEach((b) => b.setAttribute('aria-current', b.dataset.l === L ? 'true' : 'false'));
+  const [title, steps, note] = INFO[L];
+  $('#stage-big').textContent = L;
+  $('#sheet-title').textContent = title;
+  $('#stage-title').textContent = title;
+  const kind = FS.POSES[L].motion ? 'Handshape + movement' : 'Handshape';
+  $('#stage-kind').textContent = kind;
+  $('#sheet-kind').textContent = `Letter ${L} · ${kind}`;
+  $('#sheet-steps').innerHTML = steps.map((s) => `<li><span>${chipify(s)}</span></li>`).join('');
+  $('#sheet-note').innerHTML = chipify(note);
+  $('#replay').hidden = !FS.POSES[L].motion;
+  $('#go-practice-label').textContent = `Practice ${L}`;
+  big.setLetter(L);
+}
+$('#prev').onclick = () => selectLetter(LETTERS[(LETTERS.indexOf(state.letter) + 25) % 26]);
+$('#next').onclick = () => selectLetter(LETTERS[(LETTERS.indexOf(state.letter) + 1) % 26]);
+$('#replay').onclick = () => big.setLetter(state.letter);
+$$('[data-view]').forEach((b) => b.addEventListener('click', () => {
+  $$('[data-view]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  big.setView(b.dataset.view);
+}));
+$('#go-practice').onclick = () => { setMode('abc'); setTarget(state.letter); showTab('practice'); };
+
+function setHand(left) {
+  state.left = left; store.set('left', left);
+  $('#hand-right').setAttribute('aria-pressed', String(!left));
+  $('#hand-left').setAttribute('aria-pressed', String(left));
+  big.setLeft(left); mini.setLeft(left); spellView.setLeft(left);
+}
+$('#hand-right').onclick = () => setHand(false);
+$('#hand-left').onclick = () => setHand(true);
+
+function showTab(t) {
+  state.tab = t;
+  $('#tab-learn').setAttribute('aria-selected', String(t === 'learn'));
+  $('#tab-practice').setAttribute('aria-selected', String(t === 'practice'));
+  $('#tab-spell').setAttribute('aria-selected', String(t === 'spell'));
+  $('#learn-wrap').hidden = t !== 'learn';
+  $('#practice').hidden = t !== 'practice';
+  $('#spell').hidden = t !== 'spell';
+  const HEAD = {
+    learn: ['The ASL alphabet, one handshape at a time', 'Pick a letter, turn the 3D hand to see it from any side, and follow the steps.'],
+    practice: ['Practice with live feedback', 'Sign each letter to the camera. The coach checks every finger and tells you what to adjust.'],
+    spell: ['Spell it for me', 'Type a word or a name and watch it fingerspelled. Copy along to practice signing, or look away and read it back.'],
+  }[t];
+  $('#page-title').textContent = HEAD[0];
+  $('#page-sub').textContent = HEAD[1];
+  requestAnimationFrame(() => { big.resize(); mini.resize(); spellView.resize(); });
+  if (t === 'spell') spellOnShow(); else spellPause();
+  try { history.replaceState(null, '', '#' + t); } catch {}
+}
+$('#tab-learn').onclick = () => showTab('learn');
+$('#tab-practice').onclick = () => showTab('practice');
+$('#tab-spell').onclick = () => showTab('spell');
+
+document.addEventListener('keydown', (e) => {
+  if (state.tab !== 'learn' || e.target.closest('input')) return;
+  if (e.key === 'ArrowRight') $('#next').click();
+  else if (e.key === 'ArrowLeft') $('#prev').click();
+  else if (/^[a-z]$/i.test(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey) selectLetter(e.key.toUpperCase());
+});
+
+// light / dark switch (remembers the choice; follows the system until clicked)
+function effectiveTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  if (t === 'light' || t === 'dark') return t;
+  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function syncThemeLabel() {
+  const dark = effectiveTheme() === 'dark', next = dark ? 'light' : 'dark';
+  const b = $('#theme-toggle'); b.setAttribute('aria-label', `Switch to ${next} mode`); b.title = `Switch to ${next} mode`;
+  b.classList.toggle('is-dark', dark);
+}
+$('#theme-toggle').onclick = (e) => {
+  const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+  const apply = () => {
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('fs.theme', next); } catch {}
+    syncThemeLabel(); reTheme();
+  };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!document.startViewTransition || reduce) { apply(); return; }
+  // circular reveal that grows out of the button
+  const r = e.currentTarget.getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const vt = document.startViewTransition(apply);
+  vt.ready.then(() => {
+    document.documentElement.animate(
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
+      { duration: 550, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
+  }).catch(() => {});
+};
+syncThemeLabel();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeLabel);
+
+// theme changes
+function reTheme() { big.applyTheme(); mini.applyTheme(); spellView.applyTheme(); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', reTheme);
+new MutationObserver(reTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+// render loop
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (state.tab === 'learn') big.frame(now, dt); else if (state.tab === 'spell') spellView.frame(now, dt); else mini.frame(now, dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// ---------------- Practice: targets & modes ----------------
+const WORDS = ['HELLO', 'THANKS', 'FRIEND', 'WATER', 'LEARN', 'SIGN', 'HAPPY', 'QUIZ', 'JUMP', 'COFFEE', 'BOOK', 'WORLD'];
+function setMode(mode) {
+  state.mode = mode;
+  $$('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  $('#word-wrap').hidden = mode !== 'word';
+  if (mode === 'word') { state.wordIx = 0; loadWord($('#word-input').value); }
+  else if (mode === 'random') setTarget(randLetter());
+}
+$$('[data-mode]').forEach((b) => b.addEventListener('click', () => { setMode(b.dataset.mode); if (b.dataset.mode === 'abc') setTarget('A'); }));
+function randLetter() { let L; do { L = LETTERS[Math.floor(Math.random() * 26)]; } while (L === state.target); return L; }
+function loadWord(w) {
+  const clean = (w || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 14) || 'HELLO';
+  state.word = clean; state.wordIx = 0; $('#word-input').value = clean;
+  renderWord(); setTarget(clean[0]);
+}
+function renderWord() {
+  $('#word').innerHTML = [...state.word].map((c, i) => `<span class="${i < state.wordIx ? 'ok' : i === state.wordIx ? 'now' : ''}">${c}</span>`).join('');
+}
+$('#word-input').addEventListener('change', (e) => loadWord(e.target.value));
+$('#word-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadWord(e.target.value); });
+$('#word-new').onclick = () => { let w; do { w = WORDS[Math.floor(Math.random() * WORDS.length)]; } while (w === state.word); loadWord(w); };
+
+let hold = 0, celebrating = 0, trail = [];
+function setTarget(L) {
+  state.target = L; hold = 0; trail = []; chkState = {};
+  $('#target-letter').textContent = L;
+  $('#ring').classList.remove('done');
+  setProgress(0);
+  mini.setLetter(L);
+  const motion = FS.POSES[L].motion;
+  $('#motion-wrap').hidden = !motion;
+  $('#motion-label').textContent = motion === 'J' ? 'Then draw a J with your pinky' : motion === 'Z' ? 'Then draw a Z with your index finger' : '';
+  $('#motion-bar').style.width = '0%';
+  renderChecks(null);
+  updateMine();
+  if (!camOn) setFix('Start the camera to begin.', false, true);
+}
+function nextTarget() {
+  if (state.mode === 'abc') setTarget(LETTERS[(LETTERS.indexOf(state.target) + 1) % 26]);
+  else if (state.mode === 'random') setTarget(randLetter());
+  else {
+    state.wordIx++;
+    if (state.wordIx >= state.word.length) {
+      renderWord();
+      setFix(`You spelled ${state.word}.`, true, true);
+      setBubble(true);
+      setTimeout(() => $('#word-new').click(), 1400);
+      return;
+    }
+    renderWord(); setTarget(state.word[state.wordIx]);
+  }
+}
+$('#skip').onclick = () => { state.streak = 0; renderStats(); nextTarget(); };
+function setProgress(p) { $('#prog').style.strokeDashoffset = String(427.3 * (1 - Math.max(0, Math.min(1, p)))); }
+function renderStats() {
+  $('#st-streak').textContent = state.streak; $('#st-done').textContent = state.done; $('#st-best').textContent = state.best;
+}
+function renderChecks(res) {
+  const L = state.target;
+  const items = res ? res.checks : FS.RULES[L].map((c) => ({ text: c.text, s: 0 }));
+  $('#checks').innerHTML = items.map((c) => `<li class="${c.s >= 0.6 ? 'ok' : ''}"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><span>${chipify(c.text)}</span></li>`).join('');
+}
+
+// ---------------- Personal templates ----------------
+let mine = store.get('mine', {});
+function updateMine() {
+  const n = (mine[state.target] || []).length;
+  $('#clear-mine').hidden = !n;
+  $('#save-mine-label').textContent = n ? `Save another (${n} saved)` : 'Save my version';
+}
+$('#save-mine').onclick = () => {
+  if (!lastF) return;
+  const arr = (mine[state.target] = mine[state.target] || []);
+  arr.push(FS.vec(lastF)); if (arr.length > 5) arr.shift();
+  store.set('mine', mine); updateMine();
+  $('#mine-msg').textContent = `Saved. The coach will now accept this shape as ${state.target}.`;
+};
+$('#clear-mine').onclick = () => { delete mine[state.target]; store.set('mine', mine); updateMine(); $('#mine-msg').textContent = `Forgot your saved versions of ${state.target}.`; };
+
+function scoreAll(F) {
+  const vec = FS.vec(F);
+  const all = FS.classify(F, ['J', 'Z']);
+  all.forEach((r) => {
+    const t = mine[r.L];
+    if (t && t.length) { const s = Math.max(...t.map((x) => FS.vecSim(vec, x))); if (s > r.score) { r.score = s; r.mine = true; } }
+  });
+  all.sort((a, b) => b.score - a.score);
+  return all;
+}
+
+// ---------------- Camera + MediaPipe ----------------
+let camOn = false, landmarker = null, stream = null, lastVideoTime = -1, lastF = null;
+const video = $('#video'), overlay = $('#overlay'), octx = overlay.getContext('2d');
+function status(text, live) { $('#status-text').textContent = text; $('#status').classList.toggle('live', !!live); }
+
+async function loadModel() {
+  if (landmarker) return landmarker;
+  status('Loading hand tracker…');
+  const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+  const files = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+  const opts = (delegate) => ({
+    baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate },
+    runningMode: 'VIDEO', numHands: 1, minHandDetectionConfidence: 0.5, minHandPresenceConfidence: 0.5, minTrackingConfidence: 0.5,
+  });
+  try { landmarker = await HandLandmarker.createFromOptions(files, opts('GPU')); }
+  catch { landmarker = await HandLandmarker.createFromOptions(files, opts('CPU')); }
+  return landmarker;
+}
+
+$('#start-cam').onclick = async () => {
+  const btn = $('#start-cam'), err = $('#gate-err'), label = $('#start-label');
+  btn.disabled = true; btn.classList.add('busy'); btn.setAttribute('aria-busy', 'true');
+  btn.querySelector('use').setAttribute('href', '#i-loader');
+  err.hidden = true;
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error(), { name: 'NoMedia' });
+    label.textContent = 'Waiting for camera…';
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 960 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
+    video.srcObject = stream; await video.play();
+    label.textContent = 'Loading hand tracker…';
+    await loadModel();
+    camOn = true;
+    $('#gate').hidden = true; $('#stop-cam').hidden = false; $('#seen').hidden = false; $('#status').hidden = false;
+    status('Tracking', true);
+    setFix('Show your hand to the camera.', false, true);
+    requestAnimationFrame(track);
+  } catch (e) {
+    const n = e && e.name;
+    err.textContent =
+      n === 'NotAllowedError' ? 'Camera access was blocked. Allow the camera from your browser\'s address bar, then press Start camera again.' :
+      n === 'NotFoundError' ? 'No camera was found. Connect a webcam and try again.' :
+      n === 'NotReadableError' ? 'Another app is using the camera. Close it and try again.' :
+      n === 'NoMedia' ? 'This browser cannot use the camera here. Open the file in Chrome, Edge or Firefox.' :
+      'The hand tracker could not load. It needs an internet connection the first time; check yours and try again.';
+    err.hidden = false;
+    if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
+  } finally {
+    btn.disabled = false; btn.classList.remove('busy'); btn.removeAttribute('aria-busy');
+    btn.querySelector('use').setAttribute('href', '#i-camera'); label.textContent = 'Start camera';
+  }
+};
+$('#stop-cam').onclick = () => {
+  camOn = false;
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null; video.srcObject = null;
+  $('#gate').hidden = false; $('#stop-cam').hidden = true; $('#seen').hidden = true; $('#status').hidden = true;
+  octx.clearRect(0, 0, overlay.width, overlay.height);
+  status('Camera off');
+};
+
+const BONES = [[0, 1, 'thumb'], [1, 2, 'thumb'], [2, 3, 'thumb'], [3, 4, 'thumb'], [0, 5, 'index'], [5, 6, 'index'], [6, 7, 'index'], [7, 8, 'index'],
+  [5, 9, null], [9, 10, 'middle'], [10, 11, 'middle'], [11, 12, 'middle'], [9, 13, null], [13, 14, 'ring'], [14, 15, 'ring'], [15, 16, 'ring'],
+  [13, 17, null], [0, 17, 'pinky'], [17, 18, 'pinky'], [18, 19, 'pinky'], [19, 20, 'pinky']];
+const JOINT_F = [null, 'thumb', 'thumb', 'thumb', 'thumb', 'index', 'index', 'index', 'index', 'middle', 'middle', 'middle', 'middle', 'ring', 'ring', 'ring', 'ring', 'pinky', 'pinky', 'pinky', 'pinky'];
+
+function drawHand(lm, w, h, colors) {
+  octx.lineCap = 'round';
+  octx.lineWidth = Math.max(3, w / 220);
+  BONES.forEach(([a, b, f]) => {
+    octx.strokeStyle = f ? colors[f] : 'rgba(255,255,255,.75)';
+    octx.beginPath(); octx.moveTo(lm[a].x * w, lm[a].y * h); octx.lineTo(lm[b].x * w, lm[b].y * h); octx.stroke();
+  });
+  lm.forEach((p, i) => {
+    const r = [4, 8, 12, 16, 20].includes(i) ? w / 110 : w / 170;
+    octx.fillStyle = JOINT_F[i] ? colors[JOINT_F[i]] : '#fff';
+    octx.beginPath(); octx.arc(p.x * w, p.y * h, r, 0, Math.PI * 2); octx.fill();
+    octx.lineWidth = 2; octx.strokeStyle = 'rgba(0,0,0,.55)'; octx.stroke();
+  });
+}
+
+// Motion evaluation in image space (units of palm length)
+function evalMotion(kind, pts, palm) {
+  if (pts.length < 6) return 0;
+  const xs = pts.map((p) => p.x / palm), ys = pts.map((p) => p.y / palm);
+  if (kind === 'Z') {
+    // need: two long horizontal strokes, net drop, at least two horizontal reversals
+    let rev = 0, dir = 0, anchor = xs[0], strokes = 0;
+    for (let i = 1; i < xs.length; i++) {
+      const dx = xs[i] - anchor;
+      if (Math.abs(dx) > 0.45) {
+        const d = Math.sign(dx);
+        if (dir && d !== dir) rev++;
+        if (d !== dir) strokes++;
+        dir = d; anchor = xs[i];
+      } else if (dir && Math.sign(dx) === dir) anchor = xs[i];
+    }
+    const span = Math.max(...xs) - Math.min(...xs);
+    const drop = ys[ys.length - 1] - ys[0];
+    return Math.min(1, (Math.min(rev, 2) / 2) * 0.6 + Math.min(1, span / 0.9) * 0.2 + Math.min(1, Math.max(0, drop) / 0.5) * 0.2);
+  } else {
+    // J: go down, then curve sideways (either side) and/or up
+    let iLow = 0; for (let i = 1; i < ys.length; i++) if (ys[i] > ys[iLow]) iLow = i;
+    const drop = ys[iLow] - Math.min(...ys.slice(0, iLow + 1));
+    const after = xs.slice(iLow);
+    const side = after.length ? Math.max(...after.map((x) => Math.abs(x - xs[iLow]))) : 0;
+    return Math.min(1, Math.min(1, drop / 0.5) * 0.55 + Math.min(1, side / 0.3) * 0.45);
+  }
+}
+
+// ---------------- Smoothing, framing and light checks ----------------
+const smooth = { img: null, world: null };
+function smoothPts(key, pts, a = 0.55) {
+  const prev = smooth[key];
+  if (!prev || prev.length !== pts.length) { smooth[key] = pts.map((p) => p.slice()); return smooth[key]; }
+  for (let i = 0; i < pts.length; i++) for (let k = 0; k < 3; k++) prev[i][k] += (pts[i][k] - prev[i][k]) * a;
+  return prev;
+}
+let lostSince = 0, lightLevel = 128, lightFrame = 0;
+const lightCanvas = document.createElement('canvas'); lightCanvas.width = 32; lightCanvas.height = 24;
+const lightCtx = lightCanvas.getContext('2d', { willReadFrequently: true });
+function measureLight() {
+  if (lightFrame++ % 20) return;
+  try {
+    lightCtx.drawImage(video, 0, 0, 32, 24);
+    const d = lightCtx.getImageData(0, 0, 32, 24).data;
+    let sum = 0; for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    lightLevel = sum / (d.length / 4);
+  } catch {}
+}
+function lightGuide() { return lightLevel < 45 ? { msg: 'It\'s quite dark. Face a window or lamp so your hand is well lit.', soft: true } : null; }
+function framing(raw, IMG) {
+  const m = 0.012;
+  if (raw.some((p) => p.x < m || p.x > 1 - m || p.y < m || p.y > 1 - m)) return { msg: 'Part of your hand is out of view. Move it toward the center of the box.', block: true };
+  const palm = Math.hypot(IMG[9][0] - IMG[0][0], IMG[9][1] - IMG[0][1]);
+  if (palm < 0.1) return { msg: 'Your hand is too far away. Move it closer to the camera.', block: true };
+  if (palm > 0.42) return { msg: 'Your hand is very close. Move it back a little.', soft: true };
+  return lightGuide();
+}
+let guideMsg = '';
+function showGuide(g) {
+  const el = $('#guide');
+  const msg = g ? g.msg : '';
+  if (msg === guideMsg) return;
+  guideMsg = msg;
+  el.hidden = !msg;
+  if (msg) $('#guide-text').textContent = msg;
+}
+function drawTargetBox(vw, vh) {
+  const w = vh * 0.62, h = vh * 0.82, x = (vw - w) / 2, y = (vh - h) / 2, r = vh * 0.04;
+  octx.save();
+  octx.setLineDash([vh * 0.025, vh * 0.018]);
+  octx.lineWidth = Math.max(2, vh / 260);
+  octx.strokeStyle = 'rgba(255,255,255,.55)';
+  octx.beginPath();
+  octx.roundRect ? octx.roundRect(x, y, w, h, r) : octx.rect(x, y, w, h);
+  octx.stroke();
+  octx.restore();
+}
+// Coach message that only changes once a new message has been steady for a moment
+let fixShown = '', fixPending = '', fixSince = 0;
+function setFix(html, good, immediate) {
+  const now = performance.now();
+  if (html === fixShown) { fixPending = ''; return; }
+  if (!immediate && fixShown) {
+    if (html !== fixPending) { fixPending = html; fixSince = now; return; }
+    if (now - fixSince < 280) return;
+  }
+  fixShown = html; fixPending = '';
+  $('#nextfix').innerHTML = html; setBubble(good);
+}
+// Steady "looks like" letter: shown only when it wins most recent frames
+const seenHist = [];
+function steadySeen(L) {
+  seenHist.push(L); if (seenHist.length > 7) seenHist.shift();
+  const counts = {}; seenHist.forEach((x) => (counts[x] = (counts[x] || 0) + 1));
+  const [top, c] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  return c >= 4 ? top : null;
+}
+// Checklist with smoothing and hysteresis so ticks don't flicker
+let chkState = {};
+function steadyChecks(checks) {
+  return checks.map((c) => {
+    const st = chkState[c.id] || (chkState[c.id] = { v: c.s, ok: c.s >= 0.6 });
+    st.v += (c.s - st.v) * 0.4;
+    if (st.v >= 0.6) st.ok = true; else if (st.v < 0.45) st.ok = false;
+    return { ...c, s: st.ok ? 1 : 0, raw: c.s };
+  });
+}
+
+function track() {
+  if (!camOn) return;
+  if (video.readyState >= 2 && video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (overlay.width !== vw) { overlay.width = vw; overlay.height = vh; }
+    const res = landmarker.detectForVideo(video, performance.now());
+    octx.clearRect(0, 0, vw, vh);
+    const colors = Object.fromEntries(FINGER_KEYS.map((k) => [k, tok('--f-' + k)]));
+    measureLight(vw, vh);
+    if (res.landmarks && res.landmarks.length) {
+      const raw = res.landmarks[0];
+      const wl = (res.worldLandmarks && res.worldLandmarks[0]) || raw;
+      // light smoothing to remove frame-to-frame jitter
+      const lm = smoothPts('img', raw.map((p) => [p.x, p.y, p.z])).map(([x, y, z]) => ({ x, y, z }));
+      const W = smoothPts('world', wl.map((p) => [p.x, p.y, p.z]));
+      const IMG = lm.map((p) => [p.x * vw / vh, p.y]);
+      lostSince = 0;
+      const guide = framing(raw, IMG);
+      showGuide(guide);
+      if (guide && guide.block) {
+        drawTargetBox(vw, vh);
+        drawHand(lm, vw, vh, colors);
+        lastF = null; $('#save-mine').disabled = true;
+        hold = Math.max(0, hold - 0.05); setProgress(hold);
+        if (performance.now() > celebrating) { setFix(guide.msg, false, true); }
+        requestAnimationFrame(track); return;
+      }
+      const F = FS.features(W, IMG);
+      lastF = F;
+      $('#save-mine').disabled = false;
+      // trail for motion letters
+      const motion = FS.POSES[state.target].motion;
+      const now = performance.now();
+      if (motion) {
+        const tipIx = motion === 'J' ? 20 : 8;
+        trail.push({ x: IMG[tipIx][0], y: IMG[tipIx][1], t: now });
+        trail = trail.filter((p) => now - p.t < 2000);
+        octx.lineWidth = Math.max(4, vw / 140); octx.strokeStyle = tok('--accent'); octx.lineJoin = 'round';
+        octx.beginPath(); trail.forEach((p, i) => { const x = p.x * vh, y = p.y * vh; i ? octx.lineTo(x, y) : octx.moveTo(x, y); }); octx.stroke();
+      }
+      drawHand(lm, vw, vh, colors);
+      coach(F, IMG, now);
+    } else {
+      lastF = null; $('#save-mine').disabled = true; hold = Math.max(0, hold - 0.05); setProgress(hold);
+      smooth.img = smooth.world = null; seenHist.length = 0;
+      $('#seen-letter').textContent = '–';
+      if (!lostSince) lostSince = performance.now();
+      drawTargetBox(vw, vh);
+      showGuide(performance.now() - lostSince > 1200 ? { msg: 'Hold one hand up inside the box.', soft: true } : lightGuide());
+      if (performance.now() > celebrating) setFix('Show your hand to the camera.', false, true);
+    }
+  }
+  requestAnimationFrame(track);
+}
+
+let lastT = performance.now();
+function coach(F, IMG, now) {
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  const all = scoreAll(F);
+  const best = all[0];
+  const steady = steadySeen(best.score >= 0.72 ? best.L : '–');
+  if (steady) $('#seen-letter').textContent = steady;
+  if (now < celebrating) return;
+
+  const L = state.target;
+  const motion = FS.POSES[L].motion;
+  const res = FS.scoreLetter(L, F);
+  const t = mine[L];
+  const mineScore = t && t.length ? Math.max(...t.map((x) => FS.vecSim(FS.vec(F), x))) : 0;
+  const score = Math.max(res.score, mineScore);
+  const shapeOK = (res.score >= 0.78 && res.min >= 0.5) || mineScore >= 0.78;
+  const competitive = motion || best.L === L || best.score - score < 0.06;
+  renderChecks({ checks: steadyChecks(res.checks) });
+
+  const fix = { set innerHTML(v) { setFix(v, false); }, set textContent(v) { setFix(v, true); } };
+  if (motion) {
+    const palm = Math.hypot(IMG[9][0] - IMG[0][0], IMG[9][1] - IMG[0][1]) || 0.2;
+    const pts = trail.map((p) => ({ x: p.x, y: p.y }));
+    const m = shapeOK ? evalMotion(motion, pts, palm) : 0;
+    $('#motion-bar').style.width = Math.round(m * 100) + '%';
+    setProgress(shapeOK ? 0.35 + 0.65 * m : score * 0.3);
+    if (!shapeOK) { const worst = res.checks.slice().sort((a, b) => a.s - b.s)[0]; setFix(chipify(worst.fix), false); trail = []; }
+    else if (m < 0.92) { setFix(motion === 'J' ? 'Good shape. Now draw a J: down, then hook.' : 'Good shape. Now draw a Z in the air.', true); }
+    else success();
+    return;
+  }
+
+  if (shapeOK && competitive) {
+    hold = Math.min(1, hold + dt / 0.7);
+    setFix('That\'s it. Hold it…', true);
+  } else {
+    hold = Math.max(0, hold - dt * 2);
+    let msg;
+    if (shapeOK && !competitive) msg = `That looks more like ${best.L}. Check the details below.`;
+    else { const worst = res.checks.slice().sort((a, b) => a.s - b.s)[0]; msg = chipify(worst.fix); }
+    setFix(msg, false);
+  }
+  setProgress(hold);
+  if (hold >= 1) success();
+}
+
+function success() {
+  const L = state.target;
+  state.streak++; state.done++; state.best = Math.max(state.best, state.streak);
+  state.signed.add(L); store.set('signed', [...state.signed]); store.set('best', state.best);
+  renderStats(); markSigned();
+  setProgress(1); $('#ring').classList.add('done');
+  setFix(`Nice. That's ${L}.`, true, true);
+  $('#flash').classList.add('on'); setTimeout(() => $('#flash').classList.remove('on'), 450);
+  const ring = $('#ring');
+  ring.classList.remove('pop'); void ring.offsetWidth; ring.classList.add('pop');
+  celebrating = performance.now() + 900;
+  hold = 0; trail = [];
+  setTimeout(nextTarget, 900);
+}
+
+// ---------------- Spell it for me ----------------
+const SPEED = { slow: 1.5, normal: 1.0, fast: 0.6 };
+const spell = { seq: [], idx: 0, playing: false, timer: 0, speed: 'normal', shown: false };
+function parseSpell(text) {
+  const seq = [];
+  for (const ch of (text || '').toUpperCase()) {
+    if (ch >= 'A' && ch <= 'Z') {
+      const prev = seq[seq.length - 1];
+      seq.push({ L: ch, bump: !!(prev && prev.L === ch) });
+    } else if (/\s/.test(ch) && seq.length && !seq[seq.length - 1].space) seq.push({ space: true });
+  }
+  while (seq.length && seq[seq.length - 1].space) seq.pop();
+  return seq;
+}
+function spellLoad(text, autoplay) {
+  spellPause();
+  spell.seq = parseSpell(text);
+  spell.idx = 0;
+  const strip = $('#spell-strip');
+  strip.innerHTML = '';
+  spell.seq.forEach((it, i) => {
+    if (it.space) { const g = document.createElement('span'); g.className = 'gap'; strip.appendChild(g); return; }
+    const b = document.createElement('button');
+    b.textContent = it.L; b.dataset.i = i; b.setAttribute('aria-label', `Show letter ${it.L}`);
+    b.onclick = () => { spellPause(); spellShow(i); };
+    strip.appendChild(b);
+  });
+  const letters = spell.seq.filter((x) => !x.space).length;
+  $('#spell-empty').hidden = letters > 0;
+  $('#spell-play').disabled = !letters; $('#spell-prev').disabled = !letters; $('#spell-next').disabled = !letters; $('#spell-practice').disabled = !letters;
+  if (letters) spellShow(0);
+  if (autoplay && letters) spellPlay();
+}
+function spellShow(i) {
+  spell.idx = i;
+  const it = spell.seq[i];
+  if (!it) return;
+  [...$('#spell-strip').children].forEach((el) => {
+    const k = +el.dataset.i;
+    if (Number.isNaN(k)) { el.classList.toggle('past', i > [...el.parentNode.children].indexOf(el)); return; }
+    el.classList.toggle('now', k === i);
+    el.classList.toggle('past', k < i);
+  });
+  const total = spell.seq.filter((x) => !x.space).length;
+  const pos = spell.seq.slice(0, i + 1).filter((x) => !x.space).length;
+  if (it.space) { $('#spell-pos').textContent = 'Space between words'; return; }
+  spellView.setLetter(it.L, { bump: it.bump });
+  $('#spell-big').textContent = it.L;
+  $('#spell-pos').textContent = `Letter ${pos} of ${total}${it.bump ? ' · repeated' : ''}`;
+  $('#spell-title').textContent = INFO[it.L][0];
+}
+function spellDur(it) {
+  const base = SPEED[spell.speed];
+  if (it.space) return base * 0.8 * 1000;
+  return (FS.POSES[it.L].motion ? Math.max(2.4, base * 1.6) : base) * 1000;
+}
+function spellTick() {
+  if (!spell.playing) return;
+  let n = spell.idx + 1;
+  if (n >= spell.seq.length) {
+    if ($('#spell-loop').checked) { spell.timer = setTimeout(() => { if (spell.playing) { spellShow(0); spell.timer = setTimeout(spellTick, spellDur(spell.seq[0])); } }, 900); return; }
+    spellPause(); $('#spell-play-label').textContent = 'Play again'; return;
+  }
+  spellShow(n);
+  spell.timer = setTimeout(spellTick, spellDur(spell.seq[n]));
+}
+function spellPlay() {
+  if (!spell.seq.length) return;
+  if (spell.idx >= spell.seq.length - 1 && !spell.playing) spellShow(0);
+  else if (!spell.playing) spellShow(spell.idx);
+  spell.playing = true;
+  $('#spell-play-icon').setAttribute('href', '#i-pause');
+  $('#spell-play-label').textContent = 'Pause';
+  clearTimeout(spell.timer);
+  spell.timer = setTimeout(spellTick, spellDur(spell.seq[spell.idx]));
+}
+function spellPause() {
+  spell.playing = false; clearTimeout(spell.timer);
+  const ic = $('#spell-play-icon'); if (ic) ic.setAttribute('href', '#i-play');
+  const lb = $('#spell-play-label'); if (lb) lb.textContent = 'Play';
+}
+function spellStep(d) {
+  spellPause();
+  let i = spell.idx + d;
+  while (spell.seq[i] && spell.seq[i].space) i += d;
+  if (i < 0 || i >= spell.seq.length) return;
+  spellShow(i);
+}
+function spellOnShow() {
+  if (!spell.shown) { spell.shown = true; spellLoad($('#spell-input').value, true); }
+}
+$('#spell-play').onclick = () => (spell.playing ? spellPause() : spellPlay());
+$('#spell-prev').onclick = () => spellStep(-1);
+$('#spell-next').onclick = () => spellStep(1);
+$('#spell-restart').onclick = () => { spellPause(); spellShow(0); spellPlay(); };
+$('#spell-input').addEventListener('input', (e) => { clearTimeout(spell.typeT); spell.typeT = setTimeout(() => spellLoad(e.target.value, false), 350); });
+$('#spell-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); spellLoad(e.target.value, true); } });
+$$('[data-example]').forEach((b) => b.addEventListener('click', () => { $('#spell-input').value = b.dataset.example; spellLoad(b.dataset.example, true); }));
+$$('[data-speed]').forEach((b) => b.addEventListener('click', () => {
+  spell.speed = b.dataset.speed;
+  $$('[data-speed]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  if (spell.playing) { clearTimeout(spell.timer); spell.timer = setTimeout(spellTick, spellDur(spell.seq[spell.idx])); }
+}));
+$$('[data-sview]').forEach((b) => b.addEventListener('click', () => {
+  $$('[data-sview]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  spellView.setView(b.dataset.sview);
+}));
+spellView.onDrag = () => { $$('[data-sview]').forEach((b) => b.setAttribute('aria-pressed', 'false')); };
+$('#spell-practice').onclick = () => {
+  const w = $('#spell-input').value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 14);
+  if (!w) return;
+  spellPause();
+  $('#word-input').value = w;
+  setMode('word');
+  showTab('practice');
+};
+document.addEventListener('keydown', (e) => {
+  if (state.tab !== 'spell' || e.target.closest('input, button, textarea')) return;
+  if (e.key === ' ') { e.preventDefault(); $('#spell-play').click(); }
+  else if (e.key === 'ArrowRight') spellStep(1);
+  else if (e.key === 'ArrowLeft') spellStep(-1);
+});
+
+// ---------------- Sliding segmented controls ----------------
+function makeSlider(group) {
+  const thumb = document.createElement('span'); thumb.className = 'slider-thumb';
+  const hov = document.createElement('span'); hov.className = 'slider-hover';
+  group.prepend(hov); group.prepend(thumb);
+  const buttons = () => [...group.querySelectorAll('button')];
+  const active = () => buttons().find((b) => b.getAttribute('aria-pressed') === 'true' || b.getAttribute('aria-selected') === 'true');
+  const place = (el, b) => {
+    if (!b || !b.offsetWidth) return false;
+    el.style.width = b.offsetWidth + 'px'; el.style.height = b.offsetHeight + 'px';
+    el.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
+    return true;
+  };
+  const update = () => { const a = active(); thumb.style.opacity = a ? 1 : 0; place(thumb, a); };
+  group.classList.add('slider-init');
+  update();
+  requestAnimationFrame(() => requestAnimationFrame(() => group.classList.remove('slider-init')));
+  group.classList.add('slider-ready');
+  new MutationObserver(update).observe(group, { subtree: true, attributes: true, attributeFilter: ['aria-pressed', 'aria-selected'] });
+  new ResizeObserver(() => { group.classList.add('slider-init'); update(); requestAnimationFrame(() => group.classList.remove('slider-init')); }).observe(group);
+  buttons().forEach((b) => {
+    b.addEventListener('pointerenter', () => { if (b === active()) { hov.style.opacity = 0; return; } if (place(hov, b)) hov.style.opacity = 1; });
+  });
+  group.addEventListener('pointerleave', () => (hov.style.opacity = 0));
+}
+$$('.seg, .tabs').forEach(makeSlider);
+
+// ---------------- Boot ----------------
+setHand(state.left);
+selectLetter('A');
+setTarget('A');
+renderStats(); markSigned();
+if (location.hash === '#practice') showTab('practice');
+else if (location.hash === '#spell') showTab('spell');
+</script>
+
+</body>
+</html>
