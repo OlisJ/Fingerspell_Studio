@@ -189,7 +189,6 @@ header.bar { display: flex; align-items: center; gap: 10px 24px; flex-wrap: wrap
 .is-dark .tt .core { r: 8.5px; }
 .is-dark .tt .bite { cx: 17px; cy: 7px; }
 .is-dark .tt .rays { transform: rotate(90deg) scale(0.4); opacity: 0; }
-::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* progress card (compact strip, same height as the page title) */
 .pcard { width: min(470px, 100%); padding: var(--s3) var(--s4); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s4); }
@@ -1543,25 +1542,14 @@ function syncThemeLabel() {
   const b = $('#theme-toggle'); b.setAttribute('aria-label', `Switch to ${next} mode`); b.title = `Switch to ${next} mode`;
   b.classList.toggle('is-dark', dark);
 }
-$('#theme-toggle').onclick = (e) => {
+$('#theme-toggle').onclick = () => {
   const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
   const apply = () => {
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('fs.theme', next); } catch {}
     syncThemeLabel(); reTheme();
   };
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!document.startViewTransition || reduce) { apply(); return; }
-  // circular reveal that grows out of the button
-  const r = e.currentTarget.getBoundingClientRect();
-  const x = r.left + r.width / 2, y = r.top + r.height / 2;
-  const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-  const vt = document.startViewTransition(apply);
-  vt.ready.then(() => {
-    document.documentElement.animate(
-      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-      { duration: 550, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
-  }).catch(() => {});
+  apply();
 };
 syncThemeLabel();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeLabel);
