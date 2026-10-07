@@ -11,19 +11,6 @@ Learn and practice the American Sign Language (ASL) fingerspelling alphabet in t
 
 Hand tracking runs entirely in the browser with [MediaPipe Hand Landmarker](https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker). Video never leaves your device. Progress is stored only in your browser's local storage.
 
-## Run locally
-
-It is a single static file with no build step.
-
-```bash
-npx serve .
-```
-
-Then open the printed address. You can also open `index.html` directly in Chrome, Edge or Firefox. An internet connection is needed the first time to load three.js, MediaPipe and the hand-tracking model from their CDNs.
-
-## Deploy
-
-The site is a static `index.html`, so any static host works. On Vercel, import the repository with the default settings (Framework preset: **Other**, no build command, output directory `.`). The camera requires HTTPS, which Vercel provides.
 
 ## How recognition works
 
